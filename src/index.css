@@ -1,0 +1,52 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 16px;
+}
+
+.game-board {
+    display: grid;
+    margin: 0 auto;
+    grid-template-columns: 300px 100px;
+    width: 50%;
+    justify-content: center;
+}
+
+.field {
+    display: grid;
+    grid-template-rows: repeat(10, 1fr);
+    grid-template-columns: repeat(10, 1fr);
+    width: 200px;
+    height: 200px;
+}
+
+.player-list p {
+    margin: 0.5rem 10px;
+}
+
+.square {
+    width: 30px;
+    height: 30px;
+}
+
+.forestgreen {
+    background: forestgreen;
+}
+
+.greenyellow {
+    background: greenyellow;
+}
+
+.player {
+    background: goldenrod;
+}
+
+.active {
+    background: tomato;
+}
