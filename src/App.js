@@ -3,7 +3,7 @@ import Field from './components/Field';
 import Players from './components/Players';
 import Dice from './components/Dice';
 
-//🤨🥳😵😘
+//🤨🥳😵😘🍪🍩
 
 class App extends Component {
     state = {
@@ -50,12 +50,24 @@ class App extends Component {
             },
         ],
         turn: 0,
-        moves: 0
+        moves: 0,
+        currentIt: '',
+        oldIt: '',
+        tagAnim: false,
+    }
+
+    setPlayers(updatedPlayers, filterFn) {
+        const players = [
+            ...this.state.players.filter(filterFn),
+            ...updatedPlayers
+        ].sort((playerA, playerB) => playerA.id - playerB.id);
+        this.setState({ players });
     }
 
     setIt = (id)=> {
         const itPlayer = this.state.players.find(player => player.id === id);
         itPlayer.it = true;
+        this.setState({ currentIt : itPlayer.name });
         const players = [
             ...this.state.players.filter(player => player.id !== itPlayer.id).map(player => {
                 player.it = false;
@@ -66,11 +78,27 @@ class App extends Component {
         this.setState({ players })
     }
 
+    transitionEnd = (event)=> {
+        const currentIt = this.state.currentIt;
+        const oldIt = this.state.oldIt;
+        const positions = [0, 10, 90, 99];
+        currentIt.pos = positions[currentIt.id];
+        oldIt.pos = positions[oldIt.id];
+        // const players = [
+        //     ...this.state.players.filter(player => player.id !== currentIt.id && player.id !== oldIt.id),
+        //     currentIt,
+        //     oldIt
+        // ].sort((playerA, playerB) => playerA.id - playerB.id);
+        // this.setState({ players });
+        this.setPlayers([currentIt, oldIt], player => player.id !== currentIt.id && player.id !== oldIt.id);
+        this.setState({ tagAnim: false });
+    };
+
     componentDidMount() {
         
         this.setIt(Math.floor(Math.random() * this.state.players.length));
 
-        window.addEventListener('keyup', (event)=> {
+        window.addEventListener('keyup', async (event)=> {
             const currentPlayer = this.state.players.find(player => player.turn);
             const arrows = {
                 'ArrowUp': (player)=> {
@@ -100,15 +128,24 @@ class App extends Component {
                     notIt.lives -= 1;
                     notIt.it = true;
                     it.it = false;
-
+                    currentPlayer.moves = 0;
+                    this.setState({ currentIt : notIt, oldIt: it });
+                    // const players = [
+                    //     ...this.state.players.filter(player => player.id !== currentPlayer.id),
+                    //     currentPlayer
+                    // ].sort((playerA, playerB) => playerA.id - playerB.id);
+                    // this.setState({ players });
+                    this.setPlayers([currentPlayer], player => player.id !== currentPlayer.id)
+                    this.setState({ tagAnim: true});
                     return;
                 }
                 currentPlayer.moves -= 1;
-                const players = [
-                    ...this.state.players.filter(player => player.id !== currentPlayer.id),
-                    currentPlayer
-                ].sort((playerA, playerB) => playerA.id - playerB.id);
-                this.setState({ players });
+                // const players = [
+                //     ...this.state.players.filter(player => player.id !== currentPlayer.id),
+                //     currentPlayer
+                // ].sort((playerA, playerB) => playerA.id - playerB.id);
+                // this.setState({ players });
+                this.setPlayers([currentPlayer], player => player.id !== currentPlayer.id)
             }
         });
     }
@@ -134,7 +171,10 @@ class App extends Component {
     render() {
         return ( 
             <div className="game-board">
-                <Field players={this.state.players} />
+                <Field players={this.state.players} 
+                    it={this.state.currentIt} 
+                    tagAnim={this.state.tagAnim}
+                    transitionEnd={this.transitionEnd}/>
                 <Players players={this.state.players} />
                 <Dice setTurn={this.setTurn} moves={this.state.moves} />
             </div>

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Sedgwick+Ave');
+
 * {
     box-sizing: border-box;
 }
@@ -24,6 +26,7 @@ body {
     grid-template-columns: repeat(10, 1fr);
     width: 200px;
     height: 200px;
+    position: relative;
 }
 
 .player-list p {
@@ -53,4 +56,18 @@ body {
 
 .dice {
     grid-column: 2;
+}
+
+.your-it {
+    font-family: 'Sedgwick Ave', cursive;
+    position: absolute;
+    font-size: 2rem;
+    text-align: center;
+    color: palevioletred;
+    transition: 1s;
+}
+
+.your-it-anim {
+    transform: scale(200%);
+    color: rebeccapurple;
 }

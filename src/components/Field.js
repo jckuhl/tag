@@ -1,5 +1,6 @@
 /*eslint no-loop-func: 0*/
 import React from 'react';
+import YourIt from './YourIt';
 
 export default function Field(props) {
     let count = 0;
@@ -20,8 +21,13 @@ export default function Field(props) {
         );
         count += 1;
     }
+
     return (
         <div className="field">
+            <YourIt pos={{ top: 0, left: 0 }} 
+                it={props.it} 
+                tagAnim={props.tagAnim}
+                transitionEnd={props.transitionEnd}/>
             {field}
         </div>
     )
