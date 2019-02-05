@@ -56,9 +56,22 @@ class App extends Component {
         tagAnim: false,
     }
 
-    setPlayers(updatedPlayers, filterFn) {
+    setPlayers(updatedPlayers, filterFn=undefined, mapFn=undefined) {
+        if(!Array.isArray(updatedPlayers)) {
+            const updatedPlayer = updatedPlayers;
+            updatedPlayers = [];
+            updatedPlayers.push(updatedPlayer);
+        }
+        if(!filterFn) {
+            const ids = updatedPlayers.map(player => player.id);
+            filterFn = (player) => !ids.includes(player.id);
+        }
+        let currentPlayers = this.state.players.filter(filterFn);
+        if(mapFn) {
+            currentPlayers = currentPlayers.map(mapFn);
+        }
         const players = [
-            ...this.state.players.filter(filterFn),
+            ...currentPlayers,
             ...updatedPlayers
         ].sort((playerA, playerB) => playerA.id - playerB.id);
         this.setState({ players });
@@ -68,14 +81,10 @@ class App extends Component {
         const itPlayer = this.state.players.find(player => player.id === id);
         itPlayer.it = true;
         this.setState({ currentIt : itPlayer.name });
-        const players = [
-            ...this.state.players.filter(player => player.id !== itPlayer.id).map(player => {
-                player.it = false;
-                return player;
-            }),
-            itPlayer
-        ].sort((playerA, playerB) => playerA.id - playerB.id);
-        this.setState({ players })
+        this.setPlayers(itPlayer, null, player => {
+            player.it = false;
+            return player;
+        });
     }
 
     transitionEnd = (event)=> {
@@ -84,13 +93,7 @@ class App extends Component {
         const positions = [0, 10, 90, 99];
         currentIt.pos = positions[currentIt.id];
         oldIt.pos = positions[oldIt.id];
-        // const players = [
-        //     ...this.state.players.filter(player => player.id !== currentIt.id && player.id !== oldIt.id),
-        //     currentIt,
-        //     oldIt
-        // ].sort((playerA, playerB) => playerA.id - playerB.id);
-        // this.setState({ players });
-        this.setPlayers([currentIt, oldIt], player => player.id !== currentIt.id && player.id !== oldIt.id);
+        this.setPlayers([currentIt, oldIt]);
         this.setState({ tagAnim: false });
     };
 
@@ -130,39 +133,28 @@ class App extends Component {
                     it.it = false;
                     currentPlayer.moves = 0;
                     this.setState({ currentIt : notIt, oldIt: it });
-                    // const players = [
-                    //     ...this.state.players.filter(player => player.id !== currentPlayer.id),
-                    //     currentPlayer
-                    // ].sort((playerA, playerB) => playerA.id - playerB.id);
-                    // this.setState({ players });
-                    this.setPlayers([currentPlayer], player => player.id !== currentPlayer.id)
+                    this.setPlayers(currentPlayer)
                     this.setState({ tagAnim: true});
                     return;
                 }
                 currentPlayer.moves -= 1;
-                // const players = [
-                //     ...this.state.players.filter(player => player.id !== currentPlayer.id),
-                //     currentPlayer
-                // ].sort((playerA, playerB) => playerA.id - playerB.id);
-                // this.setState({ players });
-                this.setPlayers([currentPlayer], player => player.id !== currentPlayer.id)
+                this.setPlayers(currentPlayer)
             }
         });
     }
 
     setTurn = ()=> {
         let turn = this.state.turn;
-        const currentPlayer = this.state.players.find(player => player.id === turn % 4);
+        const livingPlayers = this.state.players
+                                    .filter(player => player.lives > 0)
+                                    .sort((playerA, playerB) => playerA.id - playerB.id);
+        const currentPlayer = livingPlayers.find((player, index) => index === turn % livingPlayers.length);
         currentPlayer.turn = true;
         const moves = currentPlayer.moves = Math.floor(Math.random() * 5 + 1);
-        const players = [
-            ...this.state.players.filter(player => player.id !== currentPlayer.id).map(player => {
-                player.turn = false;
-                return player;
-            }),
-            currentPlayer
-        ].sort((playerA, playerB) => playerA.id - playerB.id);
-        this.setState({ players });
+        this.setPlayers(currentPlayer, null, player => {
+            player.turn = false;
+            return player;
+        });
         this.setState({ moves })
         turn += 1;
         this.setState({ turn })
@@ -176,7 +168,9 @@ class App extends Component {
                     tagAnim={this.state.tagAnim}
                     transitionEnd={this.transitionEnd}/>
                 <Players players={this.state.players} />
-                <Dice setTurn={this.setTurn} moves={this.state.moves} />
+                <Dice setTurn={this.setTurn} 
+                    moves={this.state.moves}
+                    disabled={this.state.players.every(player => player.moves !== 0)} />
             </div>
         );
     }

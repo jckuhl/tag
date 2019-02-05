@@ -4,7 +4,7 @@ export default function Dice(props) {
     return (
         <div className="dice">
             <p>{props.moves}</p>
-            <button onClick={props.setTurn}>Roll</button>
+            <button onClick={props.setTurn} disabled={props.disabled}>Roll</button>
         </div>
     );
 }

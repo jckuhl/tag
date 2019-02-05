@@ -68,6 +68,6 @@ body {
 }
 
 .your-it-anim {
-    transform: scale(200%);
+    transform: scale(2) !important;
     color: rebeccapurple;
 }
