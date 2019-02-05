@@ -50,3 +50,7 @@ body {
 .active {
     background: tomato;
 }
+
+.dice {
+    grid-column: 2;
+}
