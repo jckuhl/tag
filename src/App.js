@@ -70,7 +70,6 @@ class App extends Component {
             const key = event.code;
             if(Object.getOwnPropertyNames(arrows).includes(key) && currentPlayer) {
                 const newPos = arrows[key](currentPlayer);
-                console.log(newPos);
                 if(newPos === 0) {
                     return;
                 }
