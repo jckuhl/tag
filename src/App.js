@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Field from './components/Field';
 import Players from './components/Players';
 import Dice from './components/Dice';
+import random from './scripts/random';
 
 //🤨🥳😵😘🍪🍩
 
@@ -30,7 +31,7 @@ class App extends Component {
             },
             {
                 name: 'Reginald',
-                face: '😵',
+                face: '🤓',
                 lives: 3,
                 it: false,
                 turn: false,
@@ -54,6 +55,32 @@ class App extends Component {
         currentIt: '',
         oldIt: '',
         tagAnim: false,
+        cookies: {
+            face: '🍩',
+            positions: [],
+        }
+    }
+
+    setCookie() {
+        if(this.state.cookies.positions.length >= 3) {
+            return;
+        }
+        const exclude = this.state.players.map(player => player.pos)
+                                        .concat(this.state.cookies.positions);
+        const cookieAmt = random(4,1);
+        const cookiePositions = [];
+        let count = 0;
+        do {
+            const index = random(0,100);
+            if(!exclude.includes(index)) {
+                cookiePositions.push(index);
+                count += 1;
+            }
+        } while(count < cookieAmt);
+        this.setState({ cookies: {
+            ...this.state.cookies,
+            positions: cookiePositions
+        }});
     }
 
     setPlayers(updatedPlayers, filterFn=undefined, mapFn=undefined) {
@@ -100,6 +127,7 @@ class App extends Component {
     componentDidMount() {
         
         this.setIt(Math.floor(Math.random() * this.state.players.length));
+        this.setCookie();
 
         window.addEventListener('keyup', async (event)=> {
             const currentPlayer = this.state.players.find(player => player.turn);
@@ -166,7 +194,8 @@ class App extends Component {
                 <Field players={this.state.players} 
                     it={this.state.currentIt} 
                     tagAnim={this.state.tagAnim}
-                    transitionEnd={this.transitionEnd}/>
+                    transitionEnd={this.transitionEnd}
+                    cookies={this.state.cookies}/>
                 <Players players={this.state.players} />
                 <Dice setTurn={this.setTurn} 
                     moves={this.state.moves}
