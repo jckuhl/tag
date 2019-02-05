@@ -93,6 +93,16 @@ class App extends Component {
                     return;
                 }
                 currentPlayer.pos = newPos;
+                const touchedPlayers = this.state.players.filter(player => player.pos === currentPlayer.pos);
+                if(touchedPlayers.length > 1 && touchedPlayers.some(player => player.it)) {
+                    const it = touchedPlayers.find(player => player.it);
+                    const notIt = touchedPlayers.find(player => !player.it);
+                    notIt.lives -= 1;
+                    notIt.it = true;
+                    it.it = false;
+
+                    return;
+                }
                 currentPlayer.moves -= 1;
                 const players = [
                     ...this.state.players.filter(player => player.id !== currentPlayer.id),
