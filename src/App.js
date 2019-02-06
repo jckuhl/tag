@@ -3,6 +3,7 @@ import Field from './components/Field';
 import Players from './components/Players';
 import Dice from './components/Dice';
 import random from './scripts/random';
+import getMax from './scripts/maxobject';
 
 //🤨🥳😵😘🍪🍩
 
@@ -65,13 +66,20 @@ class App extends Component {
         }
     }
 
+    /**
+     * Creates upto 3 cookies randomly anywhere on the field
+     *
+     * @returns undefined only if there are already three cookies
+     * @memberof App
+     */
     setCookie() {
         const numCookies = this.state.cookies.positions.length
         if(numCookies >= 3) {
             return;
         }
         const exclude = this.state.players.map(player => player.pos)
-                                        .concat(this.state.cookies.positions);
+                                        .concat(this.state.cookies.positions)
+                                        .concat([0, 9, 90, 99]);
         const cookieAmt = random(4 - numCookies,1);
         const cookiePositions = [];
         let count = 0;
@@ -88,6 +96,14 @@ class App extends Component {
         }});
     }
 
+    /**
+     * Sets the players into state, updating them while maintaining order
+     *
+     * @param {Player} updatedPlayers Either a Player or an array of Players
+     * @param {Function} [filterFn=undefined] Function that filters out players not to be updated
+     * @param {Function} [mapFn=undefined] Function that is mapped over all the players,
+     * @memberof App
+     */
     setPlayers(updatedPlayers, filterFn=undefined, mapFn=undefined) {
         if(!Array.isArray(updatedPlayers)) {
             const updatedPlayer = updatedPlayers;
@@ -119,6 +135,11 @@ class App extends Component {
         });
     }
 
+    /**
+     * Triggered by the end of the tagged animation, teleports it and victim to starting points
+     *
+     * @memberof App
+     */
     transitionEnd = (event)=> {
         const currentIt = this.state.currentIt;
         const oldIt = this.state.oldIt;
@@ -129,6 +150,11 @@ class App extends Component {
         this.setState({ tagAnim: false });
     };
 
+    /**
+     * Lifecycle hook, sets the It character, sets the first cookies, and builds the keyup event listener
+     *
+     * @memberof App
+     */
     componentDidMount() {
         
         this.setIt(Math.floor(Math.random() * this.state.players.length));
@@ -138,22 +164,23 @@ class App extends Component {
             const currentPlayer = this.state.players.find(player => player.turn);
             const arrows = {
                 'ArrowUp': (player)=> {
-                    return player.pos - 10 >= 0 ? player.pos - 10 : 0;
+                    return player.pos - 10 >= 0 ? player.pos - 10 : -1;
                 },
                 'ArrowDown': (player)=> { 
-                    return player.pos + 10 <= 99 ? player.pos + 10  : 0;
+                    return player.pos + 10 <= 99 ? player.pos + 10  : -1;
                 },
                 'ArrowLeft': (player) => { 
-                    return player.pos % 10 !== 0 ? player.pos - 1 : 0;
+                    return player.pos % 10 !== 0 ? player.pos - 1 : -1;
                 },
                 'ArrowRight': (player) => { 
-                    return (player.pos + 1) % 10 !== 0 ? player.pos + 1 : 0;
+                    return (player.pos + 1) % 10 !== 0 ? player.pos + 1 : -1;
                 }
             }
             const key = event.code;
             if(Object.getOwnPropertyNames(arrows).includes(key) && currentPlayer && currentPlayer.moves) {
                 const newPos = arrows[key](currentPlayer);
-                if(newPos === 0) {
+                // if given a value of zero, return and don't move the player and don't reduce move count
+                if(newPos === -1) {
                     return;
                 }
                 currentPlayer.pos = newPos;
@@ -171,17 +198,36 @@ class App extends Component {
                     const it = touchedPlayers.find(player => player.it);
                     const notIt = touchedPlayers.find(player => !player.it);
                     notIt.lives -= 1;
-                    notIt.it = true;
-                    it.it = false;
-                    notIt.cookies -= 1;
-                    if(notIt.cookies < 0) {
-                        notIt.cookies === 0
+
+                    // only switch It if player still has lives
+                    if(notIt.lives !== 0) {
+                        notIt.it = true;
+                        it.it = false;
                     }
-                    it.cookies += 1;
+
+                    //take a cookie from the player if he has one
+                    if(notIt.cookies > 0) {
+                        notIt.cookies -= 1;
+                        it.cookies += 1;
+                    }
                     currentPlayer.moves = 0;
                     this.setState({ currentIt : notIt, oldIt: it });
                     this.setPlayers(currentPlayer)
                     this.setState({ tagAnim: true });
+                    this.setTurn();
+                    if(this.state.players.filter(player => player.lives > 0).length <= 1) {
+                        console.log(this.state.players.filter(player => player.lives > 0).length)
+                        // TODO: declare victory
+                        let winners = getMax(this.state.players, 'cookies');
+                        console.log(winners);
+                        if(winners.length === 1) {
+                            console.log(`${winners[0].name} won with ${winners[0].cookies}`)
+                        } else {
+                            winners.forEach(winner => {
+                                console.log(`${winner.name} won with ${winner.cookies}`)
+                            });
+                        }
+                    }
                     return;
                 }
                 currentPlayer.moves -= 1;
@@ -190,6 +236,11 @@ class App extends Component {
         });
     }
 
+    /**
+     * Cycles through the turns for each player
+     *
+     * @memberof App
+     */
     setTurn = ()=> {
         let turn = this.state.turn;
         const livingPlayers = this.state.players
@@ -197,7 +248,7 @@ class App extends Component {
                                     .sort((playerA, playerB) => playerA.id - playerB.id);
         const currentPlayer = livingPlayers.find((player, index) => index === turn % livingPlayers.length);
         currentPlayer.turn = true;
-        const moves = currentPlayer.moves = Math.floor(Math.random() * 5 + 1);
+        const moves = currentPlayer.moves = random(5, 1);
         this.setPlayers(currentPlayer, null, player => {
             player.turn = false;
             return player;
@@ -207,6 +258,12 @@ class App extends Component {
         this.setState({ turn })
     }
 
+    /**
+     * Renders the game, containing the field, the players and the dice
+     *
+     * @returns
+     * @memberof App
+     */
     render() {
         return ( 
             <div className="game-board">

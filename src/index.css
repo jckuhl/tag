@@ -24,6 +24,7 @@ body {
     display: grid;
     grid-template-rows: repeat(10, 1fr);
     grid-template-columns: repeat(10, 1fr);
+    align-content: center;
     width: 200px;
     height: 200px;
     position: relative;
@@ -36,6 +37,7 @@ body {
 .square {
     width: 30px;
     height: 30px;
+    text-align: center;
 }
 
 .forestgreen {
