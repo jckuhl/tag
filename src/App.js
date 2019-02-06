@@ -4,56 +4,17 @@ import Players from './components/Players';
 import Dice from './components/Dice';
 import random from './scripts/random';
 import getMax from './scripts/maxobject';
+import Player from './models/player'
 
 //🤨🥳😵😘🍪🍩
 
 class App extends Component {
     state = {
         players: [
-            {
-                name: 'Stephen',
-                face: '🤨',
-                lives: 3,
-                it: false,
-                turn: false,
-                moves: 0,
-                pos: 0,
-                id: 0,
-                cookies: 0,
-            },
-            {
-                name: 'Barry',
-                face: '🥳',
-                lives: 3,
-                it: false,
-                turn: false,
-                moves: 0,
-                pos: 9,
-                id: 1,
-                cookies: 0,
-            },
-            {
-                name: 'Reginald',
-                face: '🤓',
-                lives: 3,
-                it: false,
-                turn: false,
-                moves: 0,
-                pos: 90,
-                id: 2,
-                cookies: 0,
-            },
-            {
-                name: 'Aragorn',
-                face: '😘',
-                lives: 3,
-                it: false,
-                turn: false,
-                moves: 0,
-                pos: 99,
-                id: 3,
-                cookies: 0,
-            },
+            new Player('Stephen', '🤨', 0, 0),
+            new Player('Barry', '🥳', 9, 1),
+            new Player('Reginald', '🤓', 90, 2),
+            new Player('Aragorn', '😘', 99, 3),
         ],
         turn: 0,
         moves: 0,
@@ -68,7 +29,8 @@ class App extends Component {
         bonus: {
             type: null,
             position: -1
-        }
+        },
+        started: false
     }
 
     /**
@@ -166,8 +128,11 @@ class App extends Component {
         this.setIt(random(this.state.players.length));
         this.setCookie();
         this.setBonus();
+        this.setState({ currentPlayer: this.state.players[0] });
 
-        window.addEventListener('keyup', async (event)=> {
+        window.addEventListener('keyup', (event)=> {
+            event.preventDefault();
+            if(this.state.tagAnim) return;
             const currentPlayer = this.state.players.find(player => player.turn);
             const arrows = {
                 'ArrowUp': (player)=> {
@@ -204,12 +169,15 @@ class App extends Component {
                     // TODO: pick up the bonus
                     const bonusType = {
                         'health': (player)=> {
-                            if(player.health !== 3) {
-                                player.health += 1;
+                            if(player.lives !== 3) {
+                                player.lives += 1;
                                 this.setBonus(true);
                             }
                         },
-                        'immunity': ()=> true,
+                        'immunity': (player)=> {
+                            player.immune = 3;
+                            this.setBonus(true);
+                        },
                         'moneybag': (player)=> {
                             player.cookies += 3;
                             this.setBonus(true);
@@ -228,19 +196,30 @@ class App extends Component {
                     }
                     bonusType[this.state.bonus.type](currentPlayer);
                 }
-                const touchedPlayers = this.state.players.filter(player => player.pos === currentPlayer.pos);
-                if(touchedPlayers.length > 1 && touchedPlayers.some(player => player.it)) {
-                    let it = touchedPlayers.find(player => player.it);
-                    const notIt = touchedPlayers.find(player => !player.it);
-                    notIt.lives -= 1;
+                const touching = this.state.players.filter(player => {
+                    return player.pos === currentPlayer.pos;
+                });
+                const it = touching.find(player => player.it);
+                let notIt;
+                if(it && it.id !== currentPlayer.id) {
+                    notIt = currentPlayer;
+                } else {
+                    notIt = touching.find(player => !player.it);
+                }
+                // if current is touching it, it and curren't aren't the same, and current is not immune
+                if(it && notIt && notIt.pos === it.pos
+                    && notIt.id !== it.id 
+                    && notIt.immune === 0) {
+
+                    currentPlayer.lives -= 1;
 
                     // only switch It if player still has lives
                     if(notIt.lives !== 0) {
                         notIt.it = true;
                         it.it = false;
-                        currentPlayer.moves = 0;
+                        notIt.moves = 0;
                         this.setState({ currentIt : notIt, oldIt: it });
-                        this.setPlayers(currentPlayer)
+                        this.setPlayers([it, notIt])
                         this.setState({ tagAnim: true });
                         this.setTurn();
                     } else {
@@ -301,22 +280,28 @@ class App extends Component {
                                     .sort((playerA, playerB) => playerA.id - playerB.id);
         const currentPlayer = livingPlayers.find((player, index) => index === turn % livingPlayers.length);
         currentPlayer.turn = true;
+        if(currentPlayer.immune !== 0) {
+            currentPlayer.immune -= 1;
+        }
         const moves = currentPlayer.moves = random(5, 1);
         this.setPlayers(currentPlayer, null, player => {
             player.turn = false;
             return player;
         });
         turn += 1;
-        this.setState({ turn, moves, currentPlayer })
+        this.setState({ turn, moves, currentPlayer });
         if(random(10) === 5 && this.state.bonus.type === null) {
             this.setBonus();
+        }
+        if(!this.state.started) {
+            this.setState({ started: true })
         }
     }
 
     setBonus = (clear=false)=> {
         const bonuses = [
             'health',
-            // 'immunity',
+            'immunity',
             'moneybag',
             'teleport'
         ]
@@ -356,7 +341,8 @@ class App extends Component {
                 <Players players={this.state.players} cookieface={this.state.cookies.face} />
                 <Dice setTurn={this.setTurn} 
                     moves={this.state.moves}
-                    disabled={this.state.currentPlayer && this.state.currentPlayer.moves !== 0} />
+                    currentPlayer={this.state.currentPlayer}
+                    disabled={this.state.started && this.state.currentPlayer && this.state.currentPlayer.moves !== 0} />
             </div>
         );
     }

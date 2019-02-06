@@ -8,5 +8,6 @@ export default class Player {
         this.it = false;
         this.turn = false;
         this.cookies = 0;
+        this.immune = 0;
     }
 }

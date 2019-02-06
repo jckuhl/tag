@@ -15,7 +15,7 @@ body {
 .game-board {
     display: grid;
     margin: 2rem auto;
-    grid-template-columns: 300px 100px;
+    grid-template-columns: 300px 300px;
     width: 50%;
 }
 
@@ -25,13 +25,13 @@ body {
     grid-template-columns: repeat(10, 1fr);
     justify-items: center;
     align-items: center;
-    width: 200px;
-    height: 200px;
+    width: auto;
+    max-height: 300px;
     position: relative;
 }
 
 .player-list p {
-    margin: 0.5rem 10px;
+    margin: 0 10px;
 }
 
 .square {
@@ -50,14 +50,21 @@ body {
 
 .player {
     background: goldenrod;
+    padding: 0.5rem;
+}
+
+.player:nth-child(2n) {
+    background: lightgoldenrodyellow;
 }
 
 .active {
-    background: tomato;
+    background: tomato !important;
 }
 
 .dice {
-    grid-column: 2;
+    display: flex;
+    align-items: center;
+    justify-content: left;
 }
 
 .dice button {
@@ -69,6 +76,13 @@ body {
     border: 2px solid black;
     border-radius: 10px;
     background: white;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.dice button:disabled {
+    border: 2px solid lightgrey;
+    cursor: not-allowed;
 }
 
 .dice-square {
@@ -82,6 +96,10 @@ body {
     background: black;
     border-radius: 50%;
     margin: 0 auto;
+}
+
+.dice button:disabled .pip {
+    background: lightgray;
 }
 
 .your-it {
