@@ -216,7 +216,6 @@ class App extends Component {
                     this.setState({ tagAnim: true });
                     this.setTurn();
                     if(this.state.players.filter(player => player.lives > 0).length <= 1) {
-                        console.log(this.state.players.filter(player => player.lives > 0).length)
                         // TODO: declare victory
                         let winners = getMax(this.state.players, 'cookies');
                         console.log(winners);
@@ -227,6 +226,9 @@ class App extends Component {
                                 console.log(`${winner.name} won with ${winner.cookies}`)
                             });
                         }
+                        this.state.players.forEach(player => {
+                            console.log(`${player.name} had ${player.cookies}`)
+                        })
                     }
                     return;
                 }

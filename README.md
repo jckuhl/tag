@@ -1,3 +1,30 @@
+# How to Play
+
+## Overview
+
+Tag is a game for four players, each one starts in a corner.  One is picked as __it__ at random.  The objective of the game is to pick up the goodies that are scattered on the game and avoid __it__.  Whoever has the most goodies at the end, wins.
+
+## Rules
+
+This is a turn based game.  Each turn, a player rolls the dice to see how many spaces he can go.  The player must go that many spaces.  Along the way, the player can pick up any goodies or power ups in his path.  But the players must avoid __it__.
+
+__it__ cannot pick up powers or goodies, it is imperative that __it__ chases other players so he can go back to collecting goodies.  If __it__ lands on the same tile as another player, that player is tagged and becomes the new __it__.  That player also loses a life.  If all three lives are exhausted, that player leaves the game, all remaining characters return to their starting points and __it__ is picked at random among the survivors.
+
+When the game is down to two players, no one is __it__ and no new goodies will spawn.  The game ends when the last goodies are collected.
+
+Goodies can be 🍪 cookies, 🍩 donuts, 🌭 hot dogs, 🥓 bacon, or if you're feeling healthy, 🥦 broccoli.
+
+
+
+## Power Ups
+
+- ❤️: Returns a health.  If __it__ or a player with full health encounters this, nothing happens
+- 💎: Invincibility from __it__ for three turns.
+- 💰: Gives the catcher an extra 3 goodies. ️
+- 🚀: Teleports the player to a random spot on the field
+
+# React Set Up:
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
