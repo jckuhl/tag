@@ -4,7 +4,9 @@ import Player from './Player';
 export default function Players(props) {
     return (
         <div className="player-list">
-            {props.players.map(player => <Player player={player} key={player.id}/>)}
+            {props.players.map(player => (
+                <Player player={player} key={player.id} cookieface={props.cookieface}/>
+            ))}
         </div>
     );
 }

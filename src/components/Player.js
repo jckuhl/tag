@@ -10,6 +10,7 @@ export default function Player(props) {
         <div className={`player ${ player.turn ? 'active' : ''}`}>
             <p><strong>{`${player.face} ${player.name}`}</strong> <span>{player.it ? 'it!' : ''}</span></p>
             <p>{'❤️'.repeat(lives) + '💔'.repeat(3 - lives) }</p>
+            <p>{props.cookieface.repeat(player.cookies)}</p>
             <p>{player.turn ? player.moves : null}</p>
         </div>
     );

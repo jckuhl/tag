@@ -18,6 +18,7 @@ class App extends Component {
                 moves: 0,
                 pos: 0,
                 id: 0,
+                cookies: 0,
             },
             {
                 name: 'Barry',
@@ -27,7 +28,8 @@ class App extends Component {
                 turn: false,
                 moves: 0,
                 pos: 9,
-                id: 1
+                id: 1,
+                cookies: 0,
             },
             {
                 name: 'Reginald',
@@ -37,7 +39,8 @@ class App extends Component {
                 turn: false,
                 moves: 0,
                 pos: 90,
-                id: 2
+                id: 2,
+                cookies: 0,
             },
             {
                 name: 'Aragorn',
@@ -47,7 +50,8 @@ class App extends Component {
                 turn: false,
                 moves: 0,
                 pos: 99,
-                id: 3
+                id: 3,
+                cookies: 0,
             },
         ],
         turn: 0,
@@ -62,12 +66,13 @@ class App extends Component {
     }
 
     setCookie() {
-        if(this.state.cookies.positions.length >= 3) {
+        const numCookies = this.state.cookies.positions.length
+        if(numCookies >= 3) {
             return;
         }
         const exclude = this.state.players.map(player => player.pos)
                                         .concat(this.state.cookies.positions);
-        const cookieAmt = random(4,1);
+        const cookieAmt = random(4 - numCookies,1);
         const cookiePositions = [];
         let count = 0;
         do {
@@ -79,7 +84,7 @@ class App extends Component {
         } while(count < cookieAmt);
         this.setState({ cookies: {
             ...this.state.cookies,
-            positions: cookiePositions
+            positions: cookiePositions.concat(this.state.cookies.positions)
         }});
     }
 
@@ -117,7 +122,7 @@ class App extends Component {
     transitionEnd = (event)=> {
         const currentIt = this.state.currentIt;
         const oldIt = this.state.oldIt;
-        const positions = [0, 10, 90, 99];
+        const positions = [0, 9, 90, 99];
         currentIt.pos = positions[currentIt.id];
         oldIt.pos = positions[oldIt.id];
         this.setPlayers([currentIt, oldIt]);
@@ -152,6 +157,15 @@ class App extends Component {
                     return;
                 }
                 currentPlayer.pos = newPos;
+                if(this.state.cookies.positions.includes(currentPlayer.pos) && !currentPlayer.it) {
+                    currentPlayer.cookies += 1;
+                    const currentCookies = this.state.cookies.positions.filter(pos => pos !== currentPlayer.pos);
+                    this.setState({ cookies: {
+                        ...this.state.cookies,
+                        positions: currentCookies
+                    }});
+                    this.setCookie();
+                }
                 const touchedPlayers = this.state.players.filter(player => player.pos === currentPlayer.pos);
                 if(touchedPlayers.length > 1 && touchedPlayers.some(player => player.it)) {
                     const it = touchedPlayers.find(player => player.it);
@@ -159,10 +173,15 @@ class App extends Component {
                     notIt.lives -= 1;
                     notIt.it = true;
                     it.it = false;
+                    notIt.cookies -= 1;
+                    if(notIt.cookies < 0) {
+                        notIt.cookies === 0
+                    }
+                    it.cookies += 1;
                     currentPlayer.moves = 0;
                     this.setState({ currentIt : notIt, oldIt: it });
                     this.setPlayers(currentPlayer)
-                    this.setState({ tagAnim: true});
+                    this.setState({ tagAnim: true });
                     return;
                 }
                 currentPlayer.moves -= 1;
@@ -196,7 +215,7 @@ class App extends Component {
                     tagAnim={this.state.tagAnim}
                     transitionEnd={this.transitionEnd}
                     cookies={this.state.cookies}/>
-                <Players players={this.state.players} />
+                <Players players={this.state.players} cookieface={this.state.cookies.face} />
                 <Dice setTurn={this.setTurn} 
                     moves={this.state.moves}
                     disabled={this.state.players.every(player => player.moves !== 0)} />
