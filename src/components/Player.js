@@ -13,7 +13,7 @@ export default function Player(props) {
                 <span>{player.it ? ' it!' : ''}</span>
             </p>
             <p>{'❤️'.repeat(lives) + '💔'.repeat(3 - lives) }</p>
-            <p>{props.cookieface.repeat(player.cookies)}</p>
+            <p>{`${props.cookieface}: ${props.player.cookies}`}</p>
             <p>{player.turn ? `Moves: ${player.moves}` : null}</p>
         </div>
     );

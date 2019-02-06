@@ -2,6 +2,13 @@ import React from 'react';
 import setPips from '../scripts/setPips';
 
 export default function Dice(props) {
+    function getCurrentPlayer(props) {
+        if(!props.disabled) {
+            return props.nextPlayer.name;
+        } else {
+            return props.currentPlayer.name;
+        }
+    }
     if(!props.currentPlayer) return null;
     let position = 0;
     let pips = [];
@@ -14,7 +21,7 @@ export default function Dice(props) {
     } while(position !== 9);
     return (
         <div className="dice">
-            <p>{`${props.currentPlayer.name}'s turn!  ${props.disabled ? '' : 'Click to roll!'}`}</p>
+            <p>{`${getCurrentPlayer(props)}'s turn!  ${props.disabled ? '' : 'Click to roll!'}`}</p>
             <button onClick={props.setTurn} disabled={props.disabled}>
                 {pips}
             </button>

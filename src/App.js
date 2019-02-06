@@ -21,6 +21,7 @@ class App extends Component {
         currentIt: '',
         oldIt: '',
         currentPlayer: null,
+        nextPlayer: null,
         tagAnim: false,
         cookies: {
             face: '🍩',
@@ -128,7 +129,7 @@ class App extends Component {
         this.setIt(random(this.state.players.length));
         this.setCookie();
         this.setBonus();
-        this.setState({ currentPlayer: this.state.players[0] });
+        this.setState({ currentPlayer: this.state.players[0], nextPlayer: this.state.players[0] });
 
         window.addEventListener('keyup', (event)=> {
             event.preventDefault();
@@ -211,7 +212,7 @@ class App extends Component {
                     && notIt.id !== it.id 
                     && notIt.immune === 0) {
 
-                    currentPlayer.lives -= 1;
+                    notIt.lives -= 1;
 
                     // only switch It if player still has lives
                     if(notIt.lives !== 0) {
@@ -279,6 +280,7 @@ class App extends Component {
                                     .filter(player => player.lives > 0)
                                     .sort((playerA, playerB) => playerA.id - playerB.id);
         const currentPlayer = livingPlayers.find((player, index) => index === turn % livingPlayers.length);
+        const nextPlayer = livingPlayers.find((player, index) => index === turn + 1 % livingPlayers.length);
         currentPlayer.turn = true;
         if(currentPlayer.immune !== 0) {
             currentPlayer.immune -= 1;
@@ -289,7 +291,7 @@ class App extends Component {
             return player;
         });
         turn += 1;
-        this.setState({ turn, moves, currentPlayer });
+        this.setState({ turn, moves, currentPlayer, nextPlayer });
         if(random(10) === 5 && this.state.bonus.type === null) {
             this.setBonus();
         }
@@ -342,6 +344,7 @@ class App extends Component {
                 <Dice setTurn={this.setTurn} 
                     moves={this.state.moves}
                     currentPlayer={this.state.currentPlayer}
+                    nextPlayer={this.state.nextPlayer}
                     disabled={this.state.started && this.state.currentPlayer && this.state.currentPlayer.moves !== 0} />
             </div>
         );
