@@ -59,6 +59,7 @@ class App extends Component {
         moves: 0,
         currentIt: '',
         oldIt: '',
+        currentPlayer: null,
         tagAnim: false,
         cookies: {
             face: '🍩',
@@ -133,6 +134,7 @@ class App extends Component {
             player.it = false;
             return player;
         });
+        return itPlayer;
     }
 
     /**
@@ -157,7 +159,7 @@ class App extends Component {
      */
     componentDidMount() {
         
-        this.setIt(Math.floor(Math.random() * this.state.players.length));
+        this.setIt(random(this.state.players.length));
         this.setCookie();
 
         window.addEventListener('keyup', async (event)=> {
@@ -195,7 +197,7 @@ class App extends Component {
                 }
                 const touchedPlayers = this.state.players.filter(player => player.pos === currentPlayer.pos);
                 if(touchedPlayers.length > 1 && touchedPlayers.some(player => player.it)) {
-                    const it = touchedPlayers.find(player => player.it);
+                    let it = touchedPlayers.find(player => player.it);
                     const notIt = touchedPlayers.find(player => !player.it);
                     notIt.lives -= 1;
 
@@ -203,6 +205,27 @@ class App extends Component {
                     if(notIt.lives !== 0) {
                         notIt.it = true;
                         it.it = false;
+                        currentPlayer.moves = 0;
+                        this.setState({ currentIt : notIt, oldIt: it });
+                        this.setPlayers(currentPlayer)
+                        this.setState({ tagAnim: true });
+                        this.setTurn();
+                    } else {
+                        const livePlayers = this.state.players.filter(player => {
+                            return player.lives > 0;
+                        });
+                        const itid = livePlayers[random(livePlayers.length)].id;
+                        const positions = [0, 9, 90, 99];
+                        const updatedPlayers = this.state.players.map(player => {
+                            player.pos = positions[player.id]
+                            player.it = player.id === itid;
+                            return player;
+                        });
+                        const currentIt = updatedPlayers.find(player => player.it);
+                        this.setState({ currentIt, oldIt: it });
+                        this.setState({ players: updatedPlayers });
+                        this.setState({ tagAnim: true });
+                        this.setTurn();
                     }
 
                     //take a cookie from the player if he has one
@@ -210,11 +233,6 @@ class App extends Component {
                         notIt.cookies -= 1;
                         it.cookies += 1;
                     }
-                    currentPlayer.moves = 0;
-                    this.setState({ currentIt : notIt, oldIt: it });
-                    this.setPlayers(currentPlayer)
-                    this.setState({ tagAnim: true });
-                    this.setTurn();
                     if(this.state.players.filter(player => player.lives > 0).length <= 1) {
                         // TODO: declare victory
                         let winners = getMax(this.state.players, 'cookies');
@@ -255,9 +273,8 @@ class App extends Component {
             player.turn = false;
             return player;
         });
-        this.setState({ moves })
         turn += 1;
-        this.setState({ turn })
+        this.setState({ turn, moves, currentPlayer })
     }
 
     /**
@@ -277,7 +294,7 @@ class App extends Component {
                 <Players players={this.state.players} cookieface={this.state.cookies.face} />
                 <Dice setTurn={this.setTurn} 
                     moves={this.state.moves}
-                    disabled={this.state.players.every(player => player.moves !== 0)} />
+                    disabled={this.state.currentPlayer && this.state.currentPlayer.moves !== 0} />
             </div>
         );
     }
