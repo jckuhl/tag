@@ -64,6 +64,10 @@ class App extends Component {
         cookies: {
             face: '🍩',
             positions: [],
+        },
+        bonus: {
+            type: null,
+            position: -1
         }
     }
 
@@ -161,6 +165,7 @@ class App extends Component {
         
         this.setIt(random(this.state.players.length));
         this.setCookie();
+        this.setBonus();
 
         window.addEventListener('keyup', async (event)=> {
             const currentPlayer = this.state.players.find(player => player.turn);
@@ -194,6 +199,34 @@ class App extends Component {
                         positions: currentCookies
                     }});
                     this.setCookie();
+                }
+                if(this.state.bonus.position === currentPlayer.pos && !currentPlayer.it) {
+                    // TODO: pick up the bonus
+                    const bonusType = {
+                        'health': (player)=> {
+                            if(player.health !== 3) {
+                                player.health += 1;
+                                this.setBonus(true);
+                            }
+                        },
+                        'immunity': ()=> true,
+                        'moneybag': (player)=> {
+                            player.cookies += 3;
+                            this.setBonus(true);
+                        },
+                        'teleport': (player)=> {
+                            const exclude = this.state.players
+                                                .map(player => player.pos)
+                                                .concat(this.state.cookies.positions);
+                            let position;
+                            do {
+                                position = random(100);
+                            } while(exclude.includes(position));
+                            player.pos = position;
+                            this.setBonus(true);
+                        }
+                    }
+                    bonusType[this.state.bonus.type](currentPlayer);
                 }
                 const touchedPlayers = this.state.players.filter(player => player.pos === currentPlayer.pos);
                 if(touchedPlayers.length > 1 && touchedPlayers.some(player => player.it)) {
@@ -275,6 +308,34 @@ class App extends Component {
         });
         turn += 1;
         this.setState({ turn, moves, currentPlayer })
+        if(random(10) === 5 && this.state.bonus.type === null) {
+            this.setBonus();
+        }
+    }
+
+    setBonus = (clear=false)=> {
+        const bonuses = [
+            'health',
+            // 'immunity',
+            'moneybag',
+            'teleport'
+        ]
+        const bonus = {};
+        if(!clear) {
+            bonus.type = bonuses[random(bonuses.length)];
+            const exclude = this.state.players
+                            .map(player => player.pos)
+                            .concat(this.state.cookies.positions);
+            let position;
+            do {
+                position = random(100);
+            } while(exclude.includes(position));
+            bonus.position = position;
+        } else {
+            bonus.type = null;
+            bonus.position = -1;
+        }
+        this.setState({ bonus })
     }
 
     /**
@@ -290,7 +351,8 @@ class App extends Component {
                     it={this.state.currentIt} 
                     tagAnim={this.state.tagAnim}
                     transitionEnd={this.transitionEnd}
-                    cookies={this.state.cookies}/>
+                    cookies={this.state.cookies}
+                    bonus={this.state.bonus}/>
                 <Players players={this.state.players} cookieface={this.state.cookies.face} />
                 <Dice setTurn={this.setTurn} 
                     moves={this.state.moves}

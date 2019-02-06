@@ -3,6 +3,25 @@ import React from 'react';
 import YourIt from './YourIt';
 
 export default function Field(props) {
+    function getFace(position, props) {
+        const player = props.players.find(player => player.pos === position);
+        if(player) {
+            return player.lives > 0 ? player.face : '👻';
+        } else if(props.cookies.positions.includes(position)) {
+            return props.cookies.face;
+        } else if(position === props.bonus.position) {
+            const bonusType = {
+                health: '❤️',
+                immunity: '💎',
+                moneybag: '💰',
+                teleport: '🚀'
+            }
+            return bonusType[props.bonus.type];
+        } else {
+            return '';
+        }
+    }
+
     let position = 0;
     const field = [];
     while(position < 100) {
@@ -12,12 +31,9 @@ export default function Field(props) {
         } else {
             color = position % 2 === 1 ? 'forestgreen' : 'greenyellow';
         }
-        
-        const player = props.players.find(player => player.pos === position);
-        let face = player && player.lives > 0 ? player.face : '👻';
         field.push(
             <div className={`square ${color}`} key={position}>
-                {player ? face : props.cookies.positions.includes(position) ? props.cookies.face : ''}
+                {getFace(position, props)}
             </div>
         );
         position += 1;
