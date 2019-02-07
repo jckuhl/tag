@@ -31,7 +31,8 @@ class Game extends Component {
             type: null,
             position: -1
         },
-        started: false
+        started: false,
+        moveFn: null
     }
 
     /**
@@ -132,7 +133,7 @@ class Game extends Component {
         // only at the start should current and next player be the same
         this.setState({ currentPlayer: this.state.players[0], nextPlayer: this.state.players[0] });
 
-        window.addEventListener('keyup', (event)=> {
+        const movePlayer = (event)=> {
             event.preventDefault();
             if(this.state.tagAnim) return;
             const currentPlayer = this.state.players.find(player => player.turn);
@@ -267,7 +268,15 @@ class Game extends Component {
                 currentPlayer.moves -= 1;
                 this.setPlayers(currentPlayer)
             }
-        });
+        };
+        window.addEventListener('keydown', movePlayer);
+        this.setState({  moveFn: movePlayer });
+    }
+
+    componentWillUnmount() {
+        if(this.state.moveFn) {
+            window.removeEventListener('keydown', this.state.moveFn);
+        }
     }
 
     /**
