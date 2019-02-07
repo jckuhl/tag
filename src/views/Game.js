@@ -31,8 +31,7 @@ class Game extends Component {
             type: null,
             position: -1
         },
-        started: false,
-        moveFn: null
+        started: false
     }
 
     /**
@@ -132,151 +131,6 @@ class Game extends Component {
         this.setBonus();
         // only at the start should current and next player be the same
         this.setState({ currentPlayer: this.state.players[0], nextPlayer: this.state.players[0] });
-
-        const movePlayer = (event)=> {
-            event.preventDefault();
-            if(this.state.tagAnim) return;
-            const currentPlayer = this.state.players.find(player => player.turn);
-            const arrows = {
-                'ArrowUp': (player)=> {
-                    return player.pos - 10 >= 0 ? player.pos - 10 : -1;
-                },
-                'ArrowDown': (player)=> { 
-                    return player.pos + 10 <= 99 ? player.pos + 10  : -1;
-                },
-                'ArrowLeft': (player) => { 
-                    return player.pos % 10 !== 0 ? player.pos - 1 : -1;
-                },
-                'ArrowRight': (player) => { 
-                    return (player.pos + 1) % 10 !== 0 ? player.pos + 1 : -1;
-                }
-            }
-            const key = event.code;
-            if(Object.getOwnPropertyNames(arrows).includes(key) && currentPlayer && currentPlayer.moves) {
-                const newPos = arrows[key](currentPlayer);
-                // if given a value of zero, return and don't move the player and don't reduce move count
-                if(newPos === -1) {
-                    return;
-                }
-                currentPlayer.pos = newPos;
-                if(this.state.cookies.positions.includes(currentPlayer.pos) && !currentPlayer.it) {
-                    currentPlayer.cookies += 1;
-                    const currentCookies = this.state.cookies.positions.filter(pos => pos !== currentPlayer.pos);
-                    this.setState({ cookies: {
-                        ...this.state.cookies,
-                        positions: currentCookies
-                    }});
-                    this.setCookie();
-                }
-                if(this.state.bonus.position === currentPlayer.pos && !currentPlayer.it) {
-                    // TODO: pick up the bonus
-                    const bonusType = {
-                        'health': (player)=> {
-                            if(player.lives !== 3) {
-                                player.lives += 1;
-                                this.setBonus(true);
-                            }
-                        },
-                        'immunity': (player)=> {
-                            player.immune = 3;
-                            this.setBonus(true);
-                        },
-                        'moneybag': (player)=> {
-                            player.cookies += 3;
-                            this.setBonus(true);
-                        },
-                        'teleport': (player)=> {
-                            const exclude = this.state.players
-                                                .map(player => player.pos)
-                                                .concat(this.state.cookies.positions);
-                            let position;
-                            do {
-                                position = random(100);
-                            } while(exclude.includes(position));
-                            player.pos = position;
-                            this.setBonus(true);
-                        }
-                    }
-                    bonusType[this.state.bonus.type](currentPlayer);
-                }
-                const touching = this.state.players.filter(player => {
-                    return player.pos === currentPlayer.pos;
-                });
-                const it = touching.find(player => player.it);
-                let notIt;
-                if(it && it.id !== currentPlayer.id) {
-                    notIt = currentPlayer;
-                } else {
-                    notIt = touching.find(player => !player.it);
-                }
-                // if current is touching it, it and curren't aren't the same, and current is not immune
-                if(it && notIt && notIt.pos === it.pos
-                    && notIt.id !== it.id 
-                    && notIt.immune === 0) {
-
-                    notIt.lives -= 1;
-
-                    // only switch It if player still has lives
-                    if(notIt.lives !== 0) {
-                        notIt.it = true;
-                        it.it = false;
-                        notIt.moves = 0;
-                        this.setState({ currentIt : notIt, oldIt: it });
-                        this.setPlayers([it, notIt])
-                        this.setState({ tagAnim: true });
-                        this.setTurn();
-                    } else {
-                        const livePlayers = this.state.players.filter(player => {
-                            return player.lives > 0;
-                        });
-                        const itid = livePlayers[random(livePlayers.length)].id;
-                        const positions = [0, 9, 90, 99];
-                        const updatedPlayers = this.state.players.map(player => {
-                            player.pos = positions[player.id]
-                            player.it = player.id === itid;
-                            return player;
-                        });
-                        const currentIt = updatedPlayers.find(player => player.it);
-                        this.setState({ currentIt, oldIt: it });
-                        this.setState({ players: updatedPlayers });
-                        this.setState({ tagAnim: true });
-                        this.setTurn();
-                    }
-
-                    //take a cookie from the player if he has one
-                    if(notIt.cookies > 0) {
-                        notIt.cookies -= 1;
-                        it.cookies += 1;
-                    }
-                    if(this.state.players.filter(player => player.lives > 0).length <= 1) {
-                        // TODO: declare victory
-                        let winners = getMax(this.state.players, 'cookies');
-                        console.log(winners);
-                        if(winners.length === 1) {
-                            console.log(`${winners[0].name} won with ${winners[0].cookies}`)
-                        } else {
-                            winners.forEach(winner => {
-                                console.log(`${winner.name} won with ${winner.cookies}`)
-                            });
-                        }
-                        this.state.players.forEach(player => {
-                            console.log(`${player.name} had ${player.cookies}`)
-                        })
-                    }
-                    return;
-                }
-                currentPlayer.moves -= 1;
-                this.setPlayers(currentPlayer)
-            }
-        };
-        window.addEventListener('keydown', movePlayer);
-        this.setState({  moveFn: movePlayer });
-    }
-
-    componentWillUnmount() {
-        if(this.state.moveFn) {
-            window.removeEventListener('keydown', this.state.moveFn);
-        }
     }
 
     /**
@@ -335,6 +189,143 @@ class Game extends Component {
         this.setState({ bonus })
     }
 
+    movePlayer = (event)=> {
+        event.preventDefault();
+        if(this.state.tagAnim) return;
+        const currentPlayer = this.state.players.find(player => player.turn);
+        const arrows = {
+            'ArrowUp': (player)=> {
+                return player.pos - 10 >= 0 ? player.pos - 10 : -1;
+            },
+            'ArrowDown': (player)=> { 
+                return player.pos + 10 <= 99 ? player.pos + 10  : -1;
+            },
+            'ArrowLeft': (player) => { 
+                return player.pos % 10 !== 0 ? player.pos - 1 : -1;
+            },
+            'ArrowRight': (player) => { 
+                return (player.pos + 1) % 10 !== 0 ? player.pos + 1 : -1;
+            }
+        }
+        const key = event.key;
+        if(Object.getOwnPropertyNames(arrows).includes(key) && currentPlayer && currentPlayer.moves) {
+            const newPos = arrows[key](currentPlayer);
+            // if given a value of zero, return and don't move the player and don't reduce move count
+            if(newPos === -1) {
+                return;
+            }
+            currentPlayer.pos = newPos;
+            if(this.state.cookies.positions.includes(currentPlayer.pos) && !currentPlayer.it) {
+                currentPlayer.cookies += 1;
+                const currentCookies = this.state.cookies.positions.filter(pos => pos !== currentPlayer.pos);
+                this.setState({ cookies: {
+                    ...this.state.cookies,
+                    positions: currentCookies
+                }});
+                this.setCookie();
+            }
+            if(this.state.bonus.position === currentPlayer.pos && !currentPlayer.it) {
+                // TODO: pick up the bonus
+                const bonusType = {
+                    'health': (player)=> {
+                        if(player.lives !== 3) {
+                            player.lives += 1;
+                            this.setBonus(true);
+                        }
+                    },
+                    'immunity': (player)=> {
+                        player.immune = 3;
+                        this.setBonus(true);
+                    },
+                    'moneybag': (player)=> {
+                        player.cookies += 3;
+                        this.setBonus(true);
+                    },
+                    'teleport': (player)=> {
+                        const exclude = this.state.players
+                                            .map(player => player.pos)
+                                            .concat(this.state.cookies.positions);
+                        let position;
+                        do {
+                            position = random(100);
+                        } while(exclude.includes(position));
+                        player.pos = position;
+                        this.setBonus(true);
+                    }
+                }
+                bonusType[this.state.bonus.type](currentPlayer);
+            }
+            const touching = this.state.players.filter(player => {
+                return player.pos === currentPlayer.pos;
+            });
+            const it = touching.find(player => player.it);
+            let notIt;
+            if(it && it.id !== currentPlayer.id) {
+                notIt = currentPlayer;
+            } else {
+                notIt = touching.find(player => !player.it);
+            }
+            // if current is touching it, it and curren't aren't the same, and current is not immune
+            if(it && notIt && notIt.pos === it.pos
+                && notIt.id !== it.id 
+                && notIt.immune === 0) {
+
+                notIt.lives -= 1;
+
+                // only switch It if player still has lives
+                if(notIt.lives !== 0) {
+                    notIt.it = true;
+                    it.it = false;
+                    notIt.moves = 0;
+                    this.setState({ currentIt : notIt, oldIt: it });
+                    this.setPlayers([it, notIt])
+                    this.setState({ tagAnim: true });
+                    this.setTurn();
+                } else {
+                    const livePlayers = this.state.players.filter(player => {
+                        return player.lives > 0;
+                    });
+                    const itid = livePlayers[random(livePlayers.length)].id;
+                    const positions = [0, 9, 90, 99];
+                    const updatedPlayers = this.state.players.map(player => {
+                        player.pos = positions[player.id]
+                        player.it = player.id === itid;
+                        return player;
+                    });
+                    const currentIt = updatedPlayers.find(player => player.it);
+                    this.setState({ currentIt, oldIt: it });
+                    this.setState({ players: updatedPlayers });
+                    this.setState({ tagAnim: true });
+                    this.setTurn();
+                }
+
+                //take a cookie from the player if he has one
+                if(notIt.cookies > 0) {
+                    notIt.cookies -= 1;
+                    it.cookies += 1;
+                }
+                if(this.state.players.filter(player => player.lives > 0).length <= 1) {
+                    // TODO: declare victory
+                    let winners = getMax(this.state.players, 'cookies');
+                    console.log(winners);
+                    if(winners.length === 1) {
+                        console.log(`${winners[0].name} won with ${winners[0].cookies}`)
+                    } else {
+                        winners.forEach(winner => {
+                            console.log(`${winner.name} won with ${winner.cookies}`)
+                        });
+                    }
+                    this.state.players.forEach(player => {
+                        console.log(`${player.name} had ${player.cookies}`)
+                    })
+                }
+                return;
+            }
+            currentPlayer.moves -= 1;
+            this.setPlayers(currentPlayer)
+        }
+    };
+
     /**
      * Renders the game, containing the field, the players and the dice
      *
@@ -343,7 +334,7 @@ class Game extends Component {
      */
     render() {
         return ( 
-            <div className="game-board">
+            <div className="game-board" onKeyDown={this.movePlayer} tabIndex="0">
                 <Field players={this.state.players} 
                     it={this.state.currentIt} 
                     tagAnim={this.state.tagAnim}
