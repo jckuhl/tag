@@ -1,10 +1,17 @@
 import React, { Component } from 'react';
-
-const face=`😀😃😄😁😆😅😂🤣☺😊😇🙂🙃😉😌😍🥰😘😗😙😚😋😛😝😜🤪🤨🧐🤓😎🤩🥳😏😒😞😔😟😕🙁☹😣😖😫😩🥺😢😭😤😠😡🤬🤯😳🥵🥶😱😨😰😥😓🤗🤔🤭🤫🤥😶😐😑😬🙄😯😦😧😮😲😴🤤😪😵🤐🥴🤢🤮🤧😷🤒🤕🤑🤠😈👿😈👿👹👺🤡👽🤖🎃`
+import FaceGrid from '../components/FaceGrid';
 
 export default class Intro extends Component {
 
-    createPlayers = (event)=> {
+    state = {
+        currentPlayer: 1
+    }
+
+    selectFace = (face) => {
+        console.log(face)
+    }
+
+    createGame = (event)=> {
         const router = this.props.router;
         event.preventDefault();
         const cookieType = event.target.goodies.value;
@@ -15,7 +22,15 @@ export default class Intro extends Component {
     render() {
         return (
             <div>
-                <form onSubmit={this.createPlayers} ref="form">
+                <form onSubmit={this.createGame} ref="form">
+                    <h1>Create A Player!</h1>
+                    <div>
+                        <h3>{`Player ${this.state.currentPlayer}`}</h3>
+                    </div>
+                    <p>Select a face:</p>
+                    <div className="facegrid">
+                        <FaceGrid selectFace={this.selectFace} />
+                    </div>
                     <label htmlFor="goodies">Choose a Goody!</label>
                     <select name="goodies" id="goodies">
                         <option value="donut">🍩</option>

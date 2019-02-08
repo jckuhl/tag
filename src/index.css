@@ -115,3 +115,20 @@ body {
     transform: scale(2);
     color: rebeccapurple;
 }
+
+.facegrid {
+    display: grid;
+    grid-template-columns: repeat(15, 20px);
+    grid-template-rows: repeat(9, 20px);
+}
+
+.face {
+    text-align: center;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.face:hover {
+    background: blue;
+}
