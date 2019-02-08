@@ -144,7 +144,13 @@ class Game extends Component {
                                     .filter(player => player.lives > 0)
                                     .sort((playerA, playerB) => playerA.id - playerB.id);
         const currentPlayer = livingPlayers.find((player, index) => index === turn % livingPlayers.length);
-        const nextPlayer = livingPlayers.find((player, index) => index === turn + 1 % livingPlayers.length);
+        const nextPlayer = livingPlayers.find(player => { 
+            let nextId = currentPlayer.id + 1;
+            if(nextId >= livingPlayers.length) {
+                nextId = 0;
+            }
+            return player.id === nextId;
+        });
         currentPlayer.turn = true;
         if(currentPlayer.immune !== 0) {
             currentPlayer.immune -= 1;
