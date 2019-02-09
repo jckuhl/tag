@@ -88,7 +88,10 @@ export default class Intro extends Component {
                         <option value="hamburger">{'🍔'}</option>
                         <option value="brocolli">{'🥦'}</option>
                     </select>
-                    <button type="submit">Play!</button>
+                    <button type="submit" 
+                        disabled={this.state.currentFaces.includes('') 
+                            || this.state.currentNames.includes('')}
+                    >Play!</button>
                 </form>
             </div>
         );

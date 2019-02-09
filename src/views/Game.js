@@ -4,7 +4,6 @@ import Players from '../components/Players';
 import Dice from '../components/Dice';
 import random from '../scripts/random';
 import getMax from '../scripts/maxobject';
-import Player from '../models/player'
 
 class Game extends Component {
     state = {
@@ -33,7 +32,7 @@ class Game extends Component {
      * @returns undefined only if there are already three cookies
      * @memberof App
      */
-    setCookie(currentCookies) {
+    setCookie() {
         const numCookies = this.state.cookies.positions.length
         if(numCookies >= 3) {
             return;
@@ -111,23 +110,6 @@ class Game extends Component {
         this.setPlayers([currentIt, oldIt]);
         this.setState({ tagAnim: false });
     };
-
-    /**
-     * Lifecycle hook, sets the It character, sets the first cookies, and builds the keyup event listener
-     *
-     * @memberof App
-     */
-    componentDidMount() {
-        let cookieface = this.props.router.location.state.cookieType;
-        let players = this.props.router.location.state.players;
-        this.setState({ players }, ()=> {
-            this.setIt(random(this.state.players.length));
-            this.setCookie(cookieface);
-            this.setBonus();
-            // only at the start should current and next player be the same
-            this.setState({ currentPlayer: this.state.players[0], nextPlayer: this.state.players[0] });
-        });
-    }
 
     /**
      * Cycles through the turns for each player
@@ -221,8 +203,7 @@ class Game extends Component {
                 this.setState({ cookies: {
                     ...this.state.cookies,
                     positions: currentCookies
-                }});
-                this.setCookie();
+                }}, ()=> this.setCookie());
             }
             if(this.state.bonus.position === currentPlayer.pos && !currentPlayer.it) {
                 // TODO: pick up the bonus
@@ -283,7 +264,7 @@ class Game extends Component {
                     this.setTurn();
                 } else {
                     const livePlayers = this.state.players.filter(player => {
-                        return player.lives > 0;
+                        return player.lives > 0 && player.immune === 0;
                     });
                     const itid = livePlayers[random(livePlayers.length)].id;
                     const positions = [0, 9, 90, 99];
@@ -293,10 +274,11 @@ class Game extends Component {
                         return player;
                     });
                     const currentIt = updatedPlayers.find(player => player.it);
-                    this.setState({ currentIt, oldIt: it });
-                    this.setState({ players: updatedPlayers });
-                    this.setState({ tagAnim: true });
-                    this.setTurn();
+                    this.setState({ 
+                        currentIt, oldIt: it, 
+                        players: updatedPlayers, 
+                        tagAnim: true
+                    }, ()=> { this.setTurn() })
                 }
 
                 //take a cookie from the player if he has one
@@ -325,6 +307,25 @@ class Game extends Component {
             this.setPlayers(currentPlayer)
         }
     };
+
+    /**
+     * Lifecycle hook, sets the It character, sets the first cookies, and builds the keyup event listener
+     *
+     * @memberof App
+     */
+    componentDidMount() {
+        let cookieface = this.props.router.location.state.cookieType;
+        let players = this.props.router.location.state.players;
+        this.setState({ players }, ()=> {
+            this.setIt(random(this.state.players.length));
+            this.setCookie();
+            this.setBonus();
+            // only at the start should current and next player be the same
+            this.setState({ currentPlayer: this.state.players[0], nextPlayer: this.state.players[0], cookie: {
+                face: cookieface
+            }});
+        });
+    }
 
     /**
      * Renders the game, containing the field, the players and the dice
