@@ -32,12 +32,9 @@ class Game extends Component {
      * @returns undefined only if there are already three cookies
      * @memberof App
      */
-    setCookie() {
+    setCookie(remove=null) {
         const numCookies = this.state.cookies.positions.length
-        if(numCookies >= 3) {
-            return;
-        }
-        const exclude = this.state.players.map(player => player.pos)
+        let exclude = this.state.players.map(player => player.pos)
                                         .concat(this.state.cookies.positions)
                                         .concat([0, 9, 90, 99]);
         const cookieAmt = random(4 - numCookies,1);
@@ -50,10 +47,7 @@ class Game extends Component {
                 count += 1;
             }
         } while(count < cookieAmt);
-        this.setState({ cookies: {
-            ...this.state.cookies,
-            positions: cookiePositions.concat(this.state.cookies.positions)
-        }});
+        return cookiePositions.concat(this.state.cookies.positions.filter(pos => pos !== remove));
     }
 
     /**
@@ -83,17 +77,6 @@ class Game extends Component {
             ...updatedPlayers
         ].sort((playerA, playerB) => playerA.id - playerB.id);
         this.setState({ players });
-    }
-
-    setIt = (id)=> {
-        const itPlayer = this.state.players.find(player => player.id === id);
-        itPlayer.it = true;
-        this.setState({ currentIt : itPlayer.name });
-        this.setPlayers(itPlayer, null, player => {
-            player.it = false;
-            return player;
-        });
-        return itPlayer;
     }
 
     /**
@@ -139,7 +122,8 @@ class Game extends Component {
         turn += 1;
         this.setState({ turn, moves, currentPlayer, nextPlayer });
         if(random(10) === 5 && this.state.bonus.type === null) {
-            this.setBonus();
+            const bonus = this.setBonus();
+            this.setState({ bonus })
         }
         if(!this.state.started) {
             this.setState({ started: true })
@@ -168,7 +152,7 @@ class Game extends Component {
             bonus.type = null;
             bonus.position = -1;
         }
-        this.setState({ bonus })
+        return bonus;
     }
 
     movePlayer = (event)=> {
@@ -199,11 +183,10 @@ class Game extends Component {
             currentPlayer.pos = newPos;
             if(this.state.cookies.positions.includes(currentPlayer.pos) && !currentPlayer.it) {
                 currentPlayer.cookies += 1;
-                const currentCookies = this.state.cookies.positions.filter(pos => pos !== currentPlayer.pos);
-                this.setState({ cookies: {
+                this.setState(prevState => ({ cookies: {
                     ...this.state.cookies,
-                    positions: currentCookies
-                }}, ()=> this.setCookie());
+                    positions: this.setCookie(currentPlayer.pos)
+                }}));
             }
             if(this.state.bonus.position === currentPlayer.pos && !currentPlayer.it) {
                 // TODO: pick up the bonus
@@ -211,16 +194,17 @@ class Game extends Component {
                     'health': (player)=> {
                         if(player.lives !== 3) {
                             player.lives += 1;
-                            this.setBonus(true);
+                            return this.setBonus(true);
                         }
+                        return null;
                     },
                     'immunity': (player)=> {
                         player.immune = 3;
-                        this.setBonus(true);
+                        return this.setBonus(true);
                     },
                     'moneybag': (player)=> {
                         player.cookies += 3;
-                        this.setBonus(true);
+                        return this.setBonus(true);
                     },
                     'teleport': (player)=> {
                         const exclude = this.state.players
@@ -231,10 +215,13 @@ class Game extends Component {
                             position = random(100);
                         } while(exclude.includes(position));
                         player.pos = position;
-                        this.setBonus(true);
+                        return this.setBonus(true);
                     }
                 }
-                bonusType[this.state.bonus.type](currentPlayer);
+                const bonus = bonusType[this.state.bonus.type](currentPlayer);
+                if(bonus) {
+                    this.setState({ bonus })
+                }
             }
             const touching = this.state.players.filter(player => {
                 return player.pos === currentPlayer.pos;
@@ -316,14 +303,18 @@ class Game extends Component {
     componentDidMount() {
         let cookieface = this.props.router.location.state.cookieType;
         let players = this.props.router.location.state.players;
-        this.setState({ players }, ()=> {
-            this.setIt(random(this.state.players.length));
-            this.setCookie();
-            this.setBonus();
-            // only at the start should current and next player be the same
-            this.setState({ currentPlayer: this.state.players[0], nextPlayer: this.state.players[0], cookie: {
-                face: cookieface
-            }});
+        players[random(players.length)].it = true;
+        this.setState(prevState => {
+            return {
+                cookies: {
+                    positions: this.setCookie(),
+                    face: cookieface
+                },
+                players,
+                currentPlayer: players[0],
+                nextPlayer: players[1],
+                bonus: this.setBonus()
+            }
         });
     }
 
