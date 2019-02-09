@@ -40,7 +40,7 @@ class Game extends Component {
      * @returns undefined only if there are already three cookies
      * @memberof App
      */
-    setCookie(cookieface) {
+    setCookie(currentCookies) {
         const numCookies = this.state.cookies.positions.length
         if(numCookies >= 3) {
             return;
@@ -59,7 +59,7 @@ class Game extends Component {
             }
         } while(count < cookieAmt);
         this.setState({ cookies: {
-            face: cookieface,
+            ...this.state.cookies,
             positions: cookiePositions.concat(this.state.cookies.positions)
         }});
     }
@@ -125,7 +125,7 @@ class Game extends Component {
      * @memberof App
      */
     componentDidMount() {
-        const cookieface = this.props.router.location.state.cookieType;
+        let cookieface = this.props.router.location.state.cookieType;
         this.setIt(random(this.state.players.length));
         this.setCookie(cookieface);
         this.setBonus();

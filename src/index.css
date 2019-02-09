@@ -132,3 +132,11 @@ body {
 .face:hover {
     background: blue;
 }
+
+.player-display {
+    display: flex;
+}
+
+.player-edit {
+    margin-right: 3rem;
+}

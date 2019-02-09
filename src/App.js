@@ -11,7 +11,7 @@ export default class App extends Component {
         cookieType: ''
     }
 
-    createPlayers = (cookieType, navigate)=> {
+    createPlayers = (cookieType, faces, names, navigate)=> {
         const cookies = {
             "donut":'🍩',
             "cookie":'🍪',
@@ -20,8 +20,12 @@ export default class App extends Component {
             "hamburger":'🍔',
             "brocolli":'🥦',
         }
+        const pos = [0, 9, 90, 99];
         cookieType = cookies[cookieType];
-        this.setState({ cookieType }, ()=> {
+        const players = faces.map((face, index) => {
+            return new Player(names[index], face, pos[index], index);
+        });
+        this.setState({ cookieType, players }, ()=> {
             navigate('/game', this.state);
         });
     }
