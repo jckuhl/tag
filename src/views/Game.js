@@ -6,16 +6,9 @@ import random from '../scripts/random';
 import getMax from '../scripts/maxobject';
 import Player from '../models/player'
 
-//🤨🥳😵😘🍪🍩
-
 class Game extends Component {
     state = {
-        players: [
-            new Player('Stephen', '🤨', 0, 0),
-            new Player('Barry', '🥳', 9, 1),
-            new Player('Reginald', '🤓', 90, 2),
-            new Player('Aragorn', '😘', 99, 3),
-        ],
+        players: [],
         turn: 0,
         moves: 0,
         currentIt: '',
@@ -126,11 +119,14 @@ class Game extends Component {
      */
     componentDidMount() {
         let cookieface = this.props.router.location.state.cookieType;
-        this.setIt(random(this.state.players.length));
-        this.setCookie(cookieface);
-        this.setBonus();
-        // only at the start should current and next player be the same
-        this.setState({ currentPlayer: this.state.players[0], nextPlayer: this.state.players[0] });
+        let players = this.props.router.location.state.players;
+        this.setState({ players }, ()=> {
+            this.setIt(random(this.state.players.length));
+            this.setCookie(cookieface);
+            this.setBonus();
+            // only at the start should current and next player be the same
+            this.setState({ currentPlayer: this.state.players[0], nextPlayer: this.state.players[0] });
+        });
     }
 
     /**
