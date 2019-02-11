@@ -27,7 +27,6 @@ body {
     align-items: center;
     width: auto;
     max-height: 300px;
-    position: relative;
 }
 
 .player-list p {
@@ -139,4 +138,10 @@ body {
 
 .player-edit {
     margin-right: 3rem;
+}
+
+.popup {
+    position: absolute;
+    top: 0;
+    left: 0;
 }

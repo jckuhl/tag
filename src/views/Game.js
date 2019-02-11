@@ -18,12 +18,14 @@ class Game extends Component {
         cookies: {
             face: '🍩',
             positions: [],
+            type: 'donut'
         },
         bonus: {
             type: null,
             position: -1
         },
-        started: false
+        started: false,
+        alert: ''
     }
 
     /**
@@ -86,6 +88,7 @@ class Game extends Component {
      */
     transitionEnd = (event)=> {
         const currentIt = this.state.currentIt;
+        if(!currentIt) return;
         const oldIt = this.state.oldIt;
         const positions = [0, 9, 90, 99];
         currentIt.pos = positions[currentIt.id];
@@ -183,13 +186,15 @@ class Game extends Component {
             currentPlayer.pos = newPos;
             if(this.state.cookies.positions.includes(currentPlayer.pos) && !currentPlayer.it) {
                 currentPlayer.cookies += 1;
-                this.setState(prevState => ({ cookies: {
-                    ...this.state.cookies,
-                    positions: this.setCookie(currentPlayer.pos)
-                }}));
+                this.setState(prevState => ({ 
+                    cookies: {
+                        ...this.state.cookies,
+                        positions: this.setCookie(currentPlayer.pos)
+                    },
+                    alert: `${currentPlayer.name} takes a ${this.state.cookies.type}!`
+                }));
             }
             if(this.state.bonus.position === currentPlayer.pos && !currentPlayer.it) {
-                // TODO: pick up the bonus
                 const bonusType = {
                     'health': (player)=> {
                         if(player.lives !== 3) {
@@ -301,14 +306,16 @@ class Game extends Component {
      * @memberof App
      */
     componentDidMount() {
-        let cookieface = this.props.router.location.state.cookieType;
+        let cookieFace = this.props.router.location.state.cookieFace;
+        let cookieType = this.props.router.location.state.cookieType;
         let players = this.props.router.location.state.players;
         players[random(players.length)].it = true;
         this.setState(prevState => {
             return {
                 cookies: {
                     positions: this.setCookie(),
-                    face: cookieface
+                    face: cookieFace,
+                    type: cookieType
                 },
                 players,
                 currentPlayer: players[0],
@@ -327,7 +334,9 @@ class Game extends Component {
     render() {
         return ( 
             <div className="game-board" onKeyDown={this.movePlayer} tabIndex="0">
-                <Field players={this.state.players} 
+                <Field players={this.state.players}
+                    alert={this.state.alert}
+                    currentPlayer={this.state.currentPlayer}
                     it={this.state.currentIt} 
                     tagAnim={this.state.tagAnim}
                     transitionEnd={this.transitionEnd}
