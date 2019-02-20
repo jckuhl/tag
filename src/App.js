@@ -14,9 +14,11 @@ const GlobalStyle = createGlobalStyle`
 
 const GameHeader = styled.header`
     width: 100%;
+    display: flex;
+    flex-direction: row;
     h1 {
-        text-align: center;
-        width: 50%;
+    }
+    a {
     }
 `
 
@@ -49,10 +51,12 @@ export default function App(props){
         <BrowserRouter>
             <div>
                 <GlobalStyle/>
-                <header>
-                    <h1>Tag!</h1>
-                    <a href="https://github.com/jckuhl/tag" target="_blank">Github</a>
-                </header>
+                <GameHeader>
+                    <header>
+                        <h1>Tag!</h1>
+                        <a href="https://github.com/jckuhl/tag" target="_blank">Github</a>
+                    </header>
+                </GameHeader>
                 <Route exact path="/" render={(props)=> <Intro createPlayers={createPlayers} router={props} />} />
                 <Route path="/game" render={(props)=> <Game router={props}/>} />
             </div>
