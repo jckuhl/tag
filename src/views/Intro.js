@@ -1,6 +1,16 @@
 import React, { Component } from 'react';
+import styled from 'styled-components';
 import FaceGrid from '../components/FaceGrid';
 import PlayerEditDisplay from '../components/PlayerEditDisplay';
+
+const Title = styled.h1`
+    text-align: center;
+    color: rebeccapurple;
+`
+const IntroBody = styled.form`
+    margin: 0 auto;
+    width: 50%;
+`
 
 export default class Intro extends Component {
 
@@ -54,45 +64,51 @@ export default class Intro extends Component {
     render() {
         return (
             <div>
-                <form onSubmit={this.createGame} ref="form">
-                    <h1>Create A Player!</h1>
-                    <div>
-                        <h3>{`Player ${this.state.currentPlayer + 1}`}</h3>
-                    </div>
-                    <p>Select a face:</p>
-                    <div className="facegrid">
-                        <FaceGrid selectFace={this.selectFace} />
-                    </div>
-                    <p>Selected Face: {this.state.selectedFace}</p>
-                    <label htmlFor="name">
-                        Name:
-                        <input type="text" name="name" id="name" ref={this.state.inputName}/>
-                    </label>
-                    <button onClick={this.addPlayer}>Add Player</button>
-                    <button onClick={(event)=> { event.preventDefault(); this.nextPlayer(1) }}>Next</button>
-                    <button onClick={(event)=> { event.preventDefault(); this.nextPlayer(-1) }}>Previous</button>
-                    <div className="player-display">
-                    {this.state.currentFaces.map((face, index) => {
-                        return (
-                            <PlayerEditDisplay playerNumber={index + 1} key={index}
+                <IntroBody>
+                    <form onSubmit={this.createGame} ref="form">
+                        <Title>
+                            <h1>Create A Player!</h1>
+                        </Title>
+                        <div>
+                            <h3>{`Player ${this.state.currentPlayer + 1}`}</h3>
+                        </div>
+                        <p>Select a face:</p>
+                        <div className="facegrid">
+                            <FaceGrid selectFace={this.selectFace} />
+                        </div>
+                        <p>Selected Face: {this.state.selectedFace}</p>
+                        <label htmlFor="name">
+                            Name:
+                            <input type="text" name="name" id="name" ref={this.state.inputName}/>
+                        </label>
+                        <button onClick={this.addPlayer}>Add Player</button>
+                        <button onClick={(event)=> { event.preventDefault(); this.nextPlayer(1) }}>Next</button>
+                        <button onClick={(event)=> { event.preventDefault(); this.nextPlayer(-1) }}>Previous</button>
+                        <div className="player-display">
+                        {this.state.currentFaces.map((face, index) => {
+                            return (
+                                <PlayerEditDisplay playerNumber={index + 1} 
+                                key={index}
                                 face={this.state.currentFaces[index]} 
-                                name={this.state.currentNames[index]} />)
-                    })}
-                    </div>
-                    <label htmlFor="goodies">Choose a Goody!</label>
-                    <select name="goodies" id="goodies">
-                        <option value="donut">{'🍩'}</option>
-                        <option value="cookie">{'🍪'}</option>
-                        <option value="hotdog">{'🌭'}</option>
-                        <option value="bacon">{'🥓'}</option>
-                        <option value="hamburger">{'🍔'}</option>
-                        <option value="brocolli">{'🥦'}</option>
-                    </select>
-                    <button type="submit" 
-                        disabled={this.state.currentFaces.includes('') 
+                                name={this.state.currentNames[index]}
+                                active={this.state.currentPlayer === index} />)
+                            })}
+                        </div>
+                        <label htmlFor="goodies">Choose a Goody!</label>
+                        <select name="goodies" id="goodies">
+                            <option value="donut">{'🍩'}</option>
+                            <option value="cookie">{'🍪'}</option>
+                            <option value="hotdog">{'🌭'}</option>
+                            <option value="bacon">{'🥓'}</option>
+                            <option value="hamburger">{'🍔'}</option>
+                            <option value="brocolli">{'🥦'}</option>
+                        </select>
+                        <button type="submit" 
+                            disabled={this.state.currentFaces.includes('') 
                             || this.state.currentNames.includes('')}
-                    >Play!</button>
-                </form>
+                            >Play!</button>
+                    </form>
+                </IntroBody>
             </div>
         );
     }

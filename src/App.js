@@ -1,8 +1,24 @@
 import React from 'react';
+import styled, { createGlobalStyle } from 'styled-components';
 import { BrowserRouter, Route } from 'react-router-dom';
 import Game from './views/Game';
 import Intro from './views/Intro';
 import Player from './models/player';
+
+const GlobalStyle = createGlobalStyle`
+    body {
+        @import url('https://fonts.googleapis.com/css?family=Roboto');
+        font-family: 'Roboto', sans-serif;
+    }
+`
+
+const GameHeader = styled.header`
+    width: 100%;
+    h1 {
+        text-align: center;
+        width: 50%;
+    }
+`
 
 export default function App(props){
 
@@ -25,15 +41,18 @@ export default function App(props){
             cookieType,
             players
         }
-        this.setState({ cookieType, cookieFace, players }, ()=> {
-            navigate('/game', state);
-        });
+        navigate('/game', state);
     }
 
 
     return (
         <BrowserRouter>
             <div>
+                <GlobalStyle/>
+                <header>
+                    <h1>Tag!</h1>
+                    <a href="https://github.com/jckuhl/tag" target="_blank">Github</a>
+                </header>
                 <Route exact path="/" render={(props)=> <Intro createPlayers={createPlayers} router={props} />} />
                 <Route path="/game" render={(props)=> <Game router={props}/>} />
             </div>

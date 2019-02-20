@@ -140,6 +140,10 @@ body {
     margin-right: 3rem;
 }
 
+.player-active {
+    background: tomato;
+}
+
 .popup {
     position: absolute;
     top: 0;
