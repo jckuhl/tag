@@ -54,7 +54,7 @@ export default function App(props){
                 <GlobalStyle/>
                 <GameHeader>
                     <h1>Tag!</h1>
-                    <a href="https://github.com/jckuhl/tag" target="_blank">Github</a>
+                    <a href="https://github.com/jckuhl/tag" target="_blank" rel="noopener noreferrer">Github</a>
                 </GameHeader>
                 <Route exact path="/" render={(props)=> (
                     <Intro createPlayers={createPlayers} router={props} />

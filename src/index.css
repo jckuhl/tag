@@ -47,41 +47,8 @@ body {
     background: greenyellow;
 }
 
-.player {
-    background: goldenrod;
-    padding: 0.5rem;
-}
-
-.player:nth-child(2n) {
-    background: lightgoldenrodyellow;
-}
-
 .active {
     background: tomato !important;
-}
-
-.dice {
-    display: flex;
-    align-items: center;
-    justify-content: left;
-}
-
-.dice button {
-    padding: 5px 5px;
-    display: grid;
-    grid-template-columns: repeat(3, 10px);
-    grid-template-rows: repeat(3, 10px);
-    align-items: center;
-    border: 2px solid black;
-    border-radius: 10px;
-    background: white;
-    cursor: pointer;
-    margin-left: auto;
-}
-
-.dice button:disabled {
-    border: 2px solid lightgrey;
-    cursor: not-allowed;
 }
 
 .dice-square {
@@ -97,10 +64,6 @@ body {
     margin: 0 auto;
 }
 
-.dice button:disabled .pip {
-    background: lightgray;
-}
-
 .your-it {
     font-family: 'Sedgwick Ave', cursive;
     position: absolute;
@@ -113,10 +76,6 @@ body {
 .your-it-anim {
     transform: scale(2);
     color: rebeccapurple;
-}
-
-.player-edit {
-    margin-right: 3rem;
 }
 
 .player-active {
