@@ -11,7 +11,7 @@ const Face = styled.div`
     :hover {
         background: blue;
     }
-`
+`;
 
 export default function FaceGrid(props) {
     function select(face) {

@@ -10,7 +10,7 @@ const GlobalStyle = createGlobalStyle`
         @import url('https://fonts.googleapis.com/css?family=Roboto');
         font-family: 'Roboto', sans-serif;
     }
-`
+`;
 
 const GameHeader = styled.header`
     width: 100%;
@@ -21,7 +21,7 @@ const GameHeader = styled.header`
     a {
         margin-left: auto;
     }
-`
+`;
 
 export default function App(props){
 

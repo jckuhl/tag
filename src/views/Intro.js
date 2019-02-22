@@ -6,21 +6,21 @@ import PlayerEditDisplay from '../components/PlayerEditDisplay';
 const Title = styled.h1`
     text-align: center;
     color: rebeccapurple;
-`
+`;
+
 const IntroBody = styled.form`
     margin: 0 auto;
     width: 50%;
-`
+`;
 
 const FaceContainer = styled.div`
     display: grid;
     grid-template-columns: repeat(15, 20px);
-    grid-template-rows: repeat(9, 20px);
-`
+`;
 
 const PlayerDisplay = styled.div`
     display: flex;
-`
+`;
 
 export default class Intro extends Component {
 
@@ -74,8 +74,7 @@ export default class Intro extends Component {
     render() {
         return (
             <div>
-                <IntroBody>
-                    <form onSubmit={this.createGame} ref="form">
+                <IntroBody onSubmit={this.createGame} ref="form">
                         <Title>
                             Create A Player!
                         </Title>
@@ -116,7 +115,6 @@ export default class Intro extends Component {
                             disabled={this.state.currentFaces.includes('') 
                             || this.state.currentNames.includes('')}
                             >Play!</button>
-                    </form>
                 </IntroBody>
             </div>
         );
