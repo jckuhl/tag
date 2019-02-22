@@ -2,11 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 
 const PlayerStyled = styled.div`
-    background: goldenrod;
+    background: ${ props => props.turn ? 'tomato' : 'goldenrod'};
     padding: 0.5rem;
 
     :nth-child(2n) {
-        background: lightgoldenrodyellow;
+        background: ${ props => props.turn ? 'tomato' : 'lightgoldenrodyellow'};
     }
 `;
 
@@ -15,7 +15,7 @@ export default function Player(props) {
     let lives = props.player.lives;
     lives = lives >= 0 ? lives : 0;
     return (
-        <PlayerStyled className={`player ${ player.turn ? 'active' : ''}`}>
+        <PlayerStyled turn={player.turn}>
             <p>
                 <strong>{`${player.face} ${player.name}`}</strong>
                 <span>{player.it ? ' it!' : ''}</span>

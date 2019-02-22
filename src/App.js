@@ -6,9 +6,15 @@ import Intro from './views/Intro';
 import Player from './models/player';
 
 const GlobalStyle = createGlobalStyle`
+    box-sizing: border-box;
     body {
         @import url('https://fonts.googleapis.com/css?family=Roboto');
         font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-size: 16px;
     }
 `;
 

@@ -30,6 +30,19 @@ const DiceStyle = styled.div`
     }
 `;
 
+const DiceSquare = styled.div`
+    width: 10px;
+    height: 10px;
+`;
+
+const Pip = styled.div`
+    width: 8px;
+    height: 8px;
+    background: black;
+    border-radius: 50%;
+    margin: 0 auto;
+`;
+
 export default function Dice(props) {
     function getCurrentPlayer(props) {
         if(!props.disabled) {
@@ -43,9 +56,9 @@ export default function Dice(props) {
     let pips = [];
     do {
         const pip = setPips(props.moves, position);
-        pips.push((<div className="dice-square" key={position}>
-            {pip ? <div className="pip"></div> : null}
-        </div>))
+        pips.push((<DiceSquare key={position}>
+            {pip ? <Pip/> : null}
+        </DiceSquare>))
         position += 1;
     } while(position !== 9);
     return (

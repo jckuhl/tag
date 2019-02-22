@@ -1,9 +1,17 @@
 import React, { Component } from 'react';
+import styled from 'styled-components';
 import Field from '../components/Field';
 import Players from '../components/Players';
 import Dice from '../components/Dice';
 import random from '../scripts/random';
 import getMax from '../scripts/maxobject';
+
+const GameBoard = styled.div`
+    display: grid;
+    margin: 2rem auto;
+    grid-template-columns: 300px 300px;
+    width: 50%;
+`;
 
 class Game extends Component {
     state = {
@@ -333,7 +341,7 @@ class Game extends Component {
      */
     render() {
         return ( 
-            <div className="game-board" onKeyDown={this.movePlayer} tabIndex="0">
+            <GameBoard onKeyDown={this.movePlayer} tabIndex="0">
                 <Field players={this.state.players}
                     alert={this.state.alert}
                     currentPlayer={this.state.currentPlayer}
@@ -348,7 +356,7 @@ class Game extends Component {
                     currentPlayer={this.state.currentPlayer}
                     nextPlayer={this.state.nextPlayer}
                     disabled={this.state.started && this.state.currentPlayer && this.state.currentPlayer.moves !== 0} />
-            </div>
+            </GameBoard>
         );
     }
 }

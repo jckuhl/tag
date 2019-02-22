@@ -1,8 +1,9 @@
 import React from 'react';
+import PopUp from './PopUpStyle';
 
 export const Exclamation = props => (
-    <p className={ `popup ${props.anim}` } 
+    <PopUp className={ props.anim } 
         style={{ top: props.pos.top, left: props.pos.left, /*visibility: 'hidden'*/}}>
         {props.message}
-    </p>
+    </PopUp>
 );

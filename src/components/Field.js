@@ -1,8 +1,26 @@
 /*eslint no-loop-func: 0*/
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import styled from 'styled-components';
 import YourIt from './YourIt';
 import { Exclamation } from './Exclamation';
+
+const FieldContainer = styled.div`
+    display: grid;
+    grid-template-rows: repeat(10, 1fr);
+    grid-template-columns: repeat(10, 1fr);
+    justify-items: center;
+    align-items: center;
+    width: auto;
+    max-height: 300px;
+`;
+
+const FieldSquare = styled.div`
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    background: ${props => props.color};
+`;
 
 export default class Field extends Component {
 
@@ -64,9 +82,9 @@ export default class Field extends Component {
                 color = position % 2 === 1 ? 'forestgreen' : 'greenyellow';
             }
             field.push(
-                <div className={`square ${color}`} key={position}>
+                <FieldSquare color={color} key={position}>
                     {this.getFace(position)}
-                </div>
+                </FieldSquare>
             );
             position += 1;
         }
@@ -74,7 +92,7 @@ export default class Field extends Component {
        const { top, left } = this.getCurrentCoords();
 
         return (
-            <div className="field">
+            <FieldContainer>
                 <YourIt pos={ this.state.fieldCoord ?
                                  { top: this.state.fieldCoord.top, left: this.state.fieldCoord.left}
                                   : { top: 0, left: 0 }} 
@@ -85,7 +103,7 @@ export default class Field extends Component {
                     pos={ {top, left} }
                     message={this.props.alert}/>
                 {field}
-            </div>
+            </FieldContainer>
         )
     }
 }
