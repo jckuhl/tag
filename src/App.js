@@ -16,9 +16,10 @@ const GameHeader = styled.header`
     width: 100%;
     display: flex;
     flex-direction: row;
-    h1 {
-    }
+    align-items: center;
+    padding: 0 1rem;
     a {
+        margin-left: auto;
     }
 `
 
@@ -52,13 +53,16 @@ export default function App(props){
             <div>
                 <GlobalStyle/>
                 <GameHeader>
-                    <header>
-                        <h1>Tag!</h1>
-                        <a href="https://github.com/jckuhl/tag" target="_blank">Github</a>
-                    </header>
+                    <h1>Tag!</h1>
+                    <a href="https://github.com/jckuhl/tag" target="_blank">Github</a>
                 </GameHeader>
-                <Route exact path="/" render={(props)=> <Intro createPlayers={createPlayers} router={props} />} />
+                <Route exact path="/" render={(props)=> (
+                    <Intro createPlayers={createPlayers} router={props} />
+                )} />
                 <Route path="/game" render={(props)=> <Game router={props}/>} />
+                <footer>
+                    <p>&copy; Project Breakpoint 2019</p>
+                </footer>
             </div>
         </BrowserRouter>
     );

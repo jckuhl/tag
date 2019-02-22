@@ -12,6 +12,16 @@ const IntroBody = styled.form`
     width: 50%;
 `
 
+const FaceContainer = styled.div`
+    display: grid;
+    grid-template-columns: repeat(15, 20px);
+    grid-template-rows: repeat(9, 20px);
+`
+
+const PlayerDisplay = styled.div`
+    display: flex;
+`
+
 export default class Intro extends Component {
 
     state = {
@@ -67,15 +77,15 @@ export default class Intro extends Component {
                 <IntroBody>
                     <form onSubmit={this.createGame} ref="form">
                         <Title>
-                            <h1>Create A Player!</h1>
+                            Create A Player!
                         </Title>
                         <div>
                             <h3>{`Player ${this.state.currentPlayer + 1}`}</h3>
                         </div>
                         <p>Select a face:</p>
-                        <div className="facegrid">
+                        <FaceContainer>
                             <FaceGrid selectFace={this.selectFace} />
-                        </div>
+                        </FaceContainer>
                         <p>Selected Face: {this.state.selectedFace}</p>
                         <label htmlFor="name">
                             Name:
@@ -84,16 +94,15 @@ export default class Intro extends Component {
                         <button onClick={this.addPlayer}>Add Player</button>
                         <button onClick={(event)=> { event.preventDefault(); this.nextPlayer(1) }}>Next</button>
                         <button onClick={(event)=> { event.preventDefault(); this.nextPlayer(-1) }}>Previous</button>
-                        <div className="player-display">
-                        {this.state.currentFaces.map((face, index) => {
-                            return (
+                        <PlayerDisplay>
+                            {this.state.currentFaces.map((face, index) => (
                                 <PlayerEditDisplay playerNumber={index + 1} 
-                                key={index}
-                                face={this.state.currentFaces[index]} 
-                                name={this.state.currentNames[index]}
-                                active={this.state.currentPlayer === index} />)
-                            })}
-                        </div>
+                                    key={index}
+                                    face={this.state.currentFaces[index]} 
+                                    name={this.state.currentNames[index]}
+                                    active={this.state.currentPlayer === index} />
+                            ))}
+                        </PlayerDisplay>
                         <label htmlFor="goodies">Choose a Goody!</label>
                         <select name="goodies" id="goodies">
                             <option value="donut">{'🍩'}</option>
