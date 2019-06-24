@@ -4,7 +4,6 @@ import Field from '../components/Field';
 import Players from '../components/Players';
 import Dice from '../components/Dice';
 import random from '../scripts/random';
-import getMax from '../scripts/maxobject';
 
 const GameBoard = styled.div`
     display: grid;
@@ -43,10 +42,19 @@ class Game extends Component {
      * @memberof App
      */
     setCookie(remove=null) {
+        const TOP_LEFT_CORNER = 0;
+        const TOP_RIGHT_CORNER = 9;
+        const BOTTOM_LEFT_CORNER = 90;
+        const BOTTOM_RIGHT_CORNER = 99;
         const numCookies = this.state.cookies.positions.length
         const exclude = this.state.players.map(player => player.pos)
                                         .concat(this.state.cookies.positions)
-                                        .concat([0, 9, 90, 99]);
+                                        .concat([
+                                            TOP_LEFT_CORNER, 
+                                            TOP_RIGHT_CORNER, 
+                                            BOTTOM_LEFT_CORNER, 
+                                            BOTTOM_RIGHT_CORNER
+                                        ]);
         const cookieAmt = random(4 - numCookies,1);
         const cookiePositions = [];
         let count = 0;
@@ -61,14 +69,15 @@ class Game extends Component {
     }
 
     /**
-     * Sets the players into state, updating them while maintaining order
+     * Preps the players to be set into state
      *
      * @param {Player} updatedPlayers Either a Player or an array of Players
      * @param {Function} [filterFn=undefined] Function that filters out players not to be updated
      * @param {Function} [mapFn=undefined] Function that is mapped over all the players,
+     * @returns {Array} [players] ready to be stored in setState call.
      * @memberof App
      */
-    setPlayers(updatedPlayers, filterFn=undefined, mapFn=undefined) {
+    prepPlayersForState(updatedPlayers, filterFn=undefined, mapFn=undefined) {
         if(!Array.isArray(updatedPlayers)) {
             const updatedPlayer = updatedPlayers;
             updatedPlayers = [];
@@ -86,7 +95,7 @@ class Game extends Component {
             ...currentPlayers,
             ...updatedPlayers
         ].sort((playerA, playerB) => playerA.id - playerB.id);
-        this.setState({ players });
+        return players;
     }
 
     /**
@@ -101,8 +110,8 @@ class Game extends Component {
         const positions = [0, 9, 90, 99];
         currentIt.pos = positions[currentIt.id];
         oldIt.pos = positions[oldIt.id];
-        this.setPlayers([currentIt, oldIt]);
-        this.setState({ tagAnim: false });
+        const players = this.prepPlayersForState([currentIt, oldIt]);
+        this.setState({ tagAnim: false, players });
     };
 
     /**
@@ -116,22 +125,22 @@ class Game extends Component {
                                     .filter(player => player.lives > 0)
                                     .sort((playerA, playerB) => playerA.id - playerB.id);
         const currentPlayer = livingPlayers.find((player, index) => index === turn % livingPlayers.length);
-        let nextIndex = this.state.players.findIndex(player => player.id === currentPlayer.id) + 1;
-        if(nextIndex >= livingPlayers.length) {
-            nextIndex = 0;
+        let nextPlayerIndex = this.state.players.findIndex(player => player.id === currentPlayer.id) + 1;
+        if(nextPlayerIndex >= livingPlayers.length) {
+            nextPlayerIndex = 0;
         }
-        const nextPlayer = this.state.players[nextIndex];
-        currentPlayer.turn = true;
+        const nextPlayer = this.state.players[nextPlayerIndex];
         if(currentPlayer.immune !== 0) {
             currentPlayer.immune -= 1;
         }
         const moves = currentPlayer.moves = random(5, 1);
-        this.setPlayers(currentPlayer, null, player => {
+        const players = this.prepPlayersForState(currentPlayer, null, player => {
             player.turn = false;
             return player;
         });
         turn += 1;
-        this.setState({ turn, moves, currentPlayer, nextPlayer });
+        currentPlayer.turn = true;
+        this.setState({ turn, moves, currentPlayer, nextPlayer, players });
         if(random(10) === 5 && this.state.bonus.type === null) {
             const bonus = this.setBonus();
             this.setState({ bonus })
@@ -201,6 +210,7 @@ class Game extends Component {
                     },
                     alert: `${currentPlayer.name} takes a ${this.state.cookies.type}!`
                 }));
+                // TODO: this.checkWin();
             }
             if(this.state.bonus.position === currentPlayer.pos && !currentPlayer.it) {
                 const bonusType = {
@@ -259,9 +269,10 @@ class Game extends Component {
                     it.it = false;
                     notIt.moves = 0;
                     this.setState({ currentIt : notIt, oldIt: it });
-                    this.setPlayers([it, notIt])
-                    this.setState({ tagAnim: true });
+                    const players = this.prepPlayersForState([it, notIt])
+                    this.setState({ tagAnim: true, players });
                     this.setTurn();
+                    // TODO: this.checkWin()
                 } else {
                     const livePlayers = this.state.players.filter(player => {
                         return player.lives > 0 && player.immune === 0;
@@ -286,27 +297,26 @@ class Game extends Component {
                     notIt.cookies -= 1;
                     it.cookies += 1;
                 }
-                if(this.state.players.filter(player => player.lives > 0).length <= 1) {
-                    // TODO: declare victory
-                    let winners = getMax(this.state.players, 'cookies');
-                    console.log(winners);
-                    if(winners.length === 1) {
-                        console.log(`${winners[0].name} won with ${winners[0].cookies}`)
-                    } else {
-                        winners.forEach(winner => {
-                            console.log(`${winner.name} won with ${winner.cookies}`)
-                        });
-                    }
-                    this.state.players.forEach(player => {
-                        console.log(`${player.name} had ${player.cookies}`)
-                    })
-                }
                 return;
             }
             currentPlayer.moves -= 1;
-            this.setPlayers(currentPlayer)
+            const players = this.prepPlayersForState(currentPlayer)
+            this.setState({ players });
         }
     };
+
+    checkWin() {
+        const livingPlayers = this.state.players.filter(player => player.lives > 0);
+        let winningPlayer;
+        if(livingPlayers.length === 1) {
+            winningPlayer = livingPlayers[0];
+        } else {
+            winningPlayer = livingPlayers.find(player => player.cookies >= 15);
+        }
+        if(winningPlayer) {
+            // TODO: end game
+        }
+    }
 
     /**
      * Lifecycle hook, sets the It character, sets the first cookies, and builds the keyup event listener

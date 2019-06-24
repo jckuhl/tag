@@ -43,6 +43,14 @@ const Pip = styled.div`
     margin: 0 auto;
 `;
 
+
+/**
+ * Dice component.  Represents a six sided die
+ *
+ * @export
+ * @param {Object} props
+ * @returns {ReactComponent} <Dice/>
+ */
 export default function Dice(props) {
     function getCurrentPlayer(props) {
         if(!props.disabled) {
@@ -55,9 +63,9 @@ export default function Dice(props) {
     let position = 0;
     let pips = [];
     do {
-        const pip = setPips(props.moves, position);
+        const hasPip = setPips(props.moves, position);
         pips.push((<DiceSquare key={position}>
-            {pip ? <Pip/> : null}
+            {hasPip ? <Pip/> : null}
         </DiceSquare>))
         position += 1;
     } while(position !== 9);
