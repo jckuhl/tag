@@ -8,6 +8,10 @@ const Title = styled.h1`
     color: rebeccapurple;
 `;
 
+const SubTitle = styled.h3`
+    text-align: center;
+`;
+
 const IntroBody = styled.form`
     margin: 0 auto;
     .center {
@@ -30,6 +34,27 @@ const FlexColumn = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
+`;
+
+const Button = styled.button`
+    font-family: 'Roboto', sans-serif;
+    background: lightgoldenrodyellow;
+    border: solid 2px black;
+    border-radius: 15px;
+    font-size: 1rem;
+
+    &:hover {
+        background: goldenrod;
+    }
+
+    &:disabled {
+        background: grey;
+    }
+`;
+
+const InlineLabel = styled.div`
+    margin: 1rem 0;
+    display: inline-block;
 `;
 
 export default class Intro extends Component {
@@ -88,21 +113,23 @@ export default class Intro extends Component {
                     <Title>
                         Create A Player!
                     </Title>
-                    <div>
-                        <h3 className="center">{`Player ${this.state.currentPlayer + 1}`}</h3>
-                    </div>
+                    <SubTitle>
+                        {`Player ${this.state.currentPlayer + 1}`}
+                    </SubTitle>
                     <p className="center">Select a face:</p>
                     <FaceContainer>
                         <FaceGrid selectFace={this.selectFace} />
                     </FaceContainer>
                     <p>Selected Face: {this.state.selectedFace}</p>
-                    <label htmlFor="name">
-                        Name:
-                        <input type="text" name="name" id="name" ref={this.state.inputName} maxLength="15"/>
-                    </label>
-                    <button onClick={this.addPlayer}>Add Player</button>
-                    <button onClick={(event)=> { event.preventDefault(); this.nextPlayer(1) }}>Next</button>
-                    <button onClick={(event)=> { event.preventDefault(); this.nextPlayer(-1) }}>Previous</button>
+                    <InlineLabel>
+                        <label htmlFor="name">
+                            Name:
+                            <input type="text" name="name" id="name" ref={this.state.inputName} maxLength="15"/>
+                        </label>
+                    </InlineLabel>
+                    <Button onClick={this.addPlayer}>Add Player</Button>
+                    <Button onClick={(event)=> { event.preventDefault(); this.nextPlayer(1) }}>Next</Button>
+                    <Button onClick={(event)=> { event.preventDefault(); this.nextPlayer(-1) }}>Previous</Button>
                     <PlayerDisplay>
                         {this.state.currentFaces.map((face, index) => (
                             <PlayerEditDisplay playerNumber={index + 1} 
@@ -112,19 +139,25 @@ export default class Intro extends Component {
                                 active={this.state.currentPlayer === index} />
                         ))}
                     </PlayerDisplay>
-                    <label htmlFor="goodies">Choose a Goody!</label>
-                    <select name="goodies" id="goodies">
-                        <option value="donut">{'🍩'}</option>
-                        <option value="cookie">{'🍪'}</option>
-                        <option value="hotdog">{'🌭'}</option>
-                        <option value="bacon">{'🥓'}</option>
-                        <option value="hamburger">{'🍔'}</option>
-                        <option value="brocolli">{'🥦'}</option>
-                    </select>
-                    <button type="submit" 
-                        disabled={this.state.currentFaces.includes('') 
-                        || this.state.currentNames.includes('')}
-                        >Play!</button>
+                    <InlineLabel>
+                        <label htmlFor="goodies">
+                            Choose a Goody!
+                            <select name="goodies" id="goodies">
+                                <option value="donut">{'🍩'}</option>
+                                <option value="cookie">{'🍪'}</option>
+                                <option value="hotdog">{'🌭'}</option>
+                                <option value="bacon">{'🥓'}</option>
+                                <option value="hamburger">{'🍔'}</option>
+                                <option value="brocolli">{'🥦'}</option>
+                            </select>
+                        </label>
+                    </InlineLabel>
+                    <Button type="submit" 
+                        disabled={
+                            this.state.currentFaces.includes('') 
+                            || this.state.currentNames.includes('')
+                        }
+                        >Play!</Button>
                 </IntroBody>
             </FlexColumn>
         );

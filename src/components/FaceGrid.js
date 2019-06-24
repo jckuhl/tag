@@ -8,7 +8,7 @@ const Face = styled.div`
     height: 20px;
     cursor: pointer;
 
-    :hover {
+    &:hover {
         background: blue;
     }
 `;

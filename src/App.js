@@ -29,6 +29,10 @@ const GameHeader = styled.header`
     }
 `;
 
+const GameFooter = styled.footer`
+    text-align: center;
+`;
+
 export default function App(props){
 
     const createPlayers = (cookieType, faces, names, navigate)=> {
@@ -53,10 +57,9 @@ export default function App(props){
         navigate('/game', state);
     }
 
-
     return (
         <BrowserRouter>
-            <div>
+            <React.Fragment>
                 <GlobalStyle/>
                 <GameHeader>
                     <h1>Tag!</h1>
@@ -65,12 +68,13 @@ export default function App(props){
                 <Route exact path="/" render={(props)=> (
                     <Intro createPlayers={createPlayers} router={props} />
                 )} />
-                <Route path="/game" render={(props)=> <Game router={props}/>} />
-                <footer>
-                    <p>&copy; Project Breakpoint 2019</p>
-                </footer>
-            </div>
+                <Route path="/game" render={(props)=> (
+                    <Game router={props}/>
+                )} />
+                <GameFooter>
+                    <small>&copy; Project Breakpoint 2019</small>
+                </GameFooter>
+            </React.Fragment>
         </BrowserRouter>
     );
-
 }

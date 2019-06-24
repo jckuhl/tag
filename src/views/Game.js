@@ -44,7 +44,7 @@ class Game extends Component {
      */
     setCookie(remove=null) {
         const numCookies = this.state.cookies.positions.length
-        let exclude = this.state.players.map(player => player.pos)
+        const exclude = this.state.players.map(player => player.pos)
                                         .concat(this.state.cookies.positions)
                                         .concat([0, 9, 90, 99]);
         const cookieAmt = random(4 - numCookies,1);

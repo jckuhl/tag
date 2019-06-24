@@ -7,7 +7,7 @@ const DiceStyle = styled.div`
     align-items: center;
     justify-content: left;
 
-    button {
+    .die {
         padding: 5px 5px;
         display: grid;
         grid-template-columns: repeat(3, 10px);
@@ -64,9 +64,9 @@ export default function Dice(props) {
     return (
         <DiceStyle>
             <p>{`${getCurrentPlayer(props)}'s turn!  ${props.disabled ? '' : 'Click to roll!'}`}</p>
-            <button onClick={props.setTurn} disabled={props.disabled}>
+            <div className="die" role="button" tabIndex="0" onClick={props.setTurn} disabled={props.disabled}>
                 {pips}
-            </button>
+            </div>
         </DiceStyle>
     );
 }
